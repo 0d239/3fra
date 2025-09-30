@@ -1,9 +1,9 @@
 /* Another card. You write content as CSS strings. Use \A for newlines. */
 .blurb-second{
-  --title: "design blurbs";
+  --title: "inshallah maktub";
   --date: "2025-09-30";
-  --tags: "#css  #weird";
-  --body: "Each blurb is a tiny CSS file that declares variables.\A The HTML pulls text from those variables.\A It feels like posting by editing styles.";
+  --tags: "#faith #fear #maktub";
+  --body: "i am abundance. i walk by faith and not by fear. life is not difficult for me. i do not resist reality. it is all beautiful. inshallah maktub.";
   --blurb-bg: #020b02;
   --blurb-fg: #39ff14;
   --blurb-border: #004c00;

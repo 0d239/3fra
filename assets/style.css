@@ -97,10 +97,10 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
 
 /* pull text from CSS variables into pseudo-elements for pure-CSS render */
 
-.blurb.blurb-welcome .blurb-title::before{ content: var(--title, "untitled"); }
-.blurb.blurb-welcome .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
-.blurb.blurb-welcome .blurb-date::before{ content: var(--date, ""); }
-.blurb.blurb-welcome .blurb-tags::before{ content: var(--tags, ""); }
+.blurb.blurb-teamwalk .blurb-title::before{ content: var(--title, "untitled"); }
+.blurb.blurb-teamwalk .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
+.blurb.blurb-teamwalk .blurb-date::before{ content: var(--date, ""); }
+.blurb.blurb-teamwalk .blurb-tags::before{ content: var(--tags, ""); }
 
 .blurb.blurb-second .blurb-title::before{ content: var(--title, "untitled"); }
 .blurb.blurb-second .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }

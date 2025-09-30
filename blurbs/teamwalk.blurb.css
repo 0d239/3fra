@@ -1,0 +1,10 @@
+/* One card. Scope variables to its class to avoid collisions. */
+.blurb-teamwalk{
+  --title: "teamwalk";
+  --date: "2025-09-30";
+  --tags: "#march #mudwalkers #walk";
+  --body: "come and walk with the team";
+  --blurb-bg: #010701;
+  --blurb-fg: #39ff14;
+  --blurb-border: #003d00;
+}
