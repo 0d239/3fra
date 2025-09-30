@@ -1,0 +1,10 @@
+/* Another card. You write content as CSS strings. Use \A for newlines. */
+.blurb-second{
+  --title: "design blurbs";
+  --date: "2025-09-30";
+  --tags: "#css  #weird";
+  --body: "Each blurb is a tiny CSS file that declares variables.\A The HTML pulls text from those variables.\A It feels like posting by editing styles.";
+  --blurb-bg: #020b02;
+  --blurb-fg: #39ff14;
+  --blurb-border: #004c00;
+}

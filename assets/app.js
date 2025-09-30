@@ -1,6 +1,6 @@
 // Minimal progressive enhancement (no frameworks).
 // 1) Hydrate text content from CSS custom properties (so the site is readable in DOM, not just ::before)
-// 2) Wire up song audio src from CSS variable (so it can live in the CSS manifest file)
+// 2) Wire up track audio src from CSS variable (so it can live in the CSS manifest file)
 // 3) Toggle glitch/tilt with keyboard shortcuts
 
 (function(){
@@ -21,41 +21,41 @@
     });
   }
 
-  function hydrateNotes(){
-    document.querySelectorAll(".note").forEach(hydrateFromCSSVars);
+  function hydrateBlurbs(){
+    document.querySelectorAll(".blurb").forEach(hydrateFromCSSVars);
   }
 
-  function hydrateSongs(){
-    document.querySelectorAll(".song").forEach(song => {
-      const cs = getComputedStyle(song);
+  function hydrateTracks(){
+    document.querySelectorAll(".track").forEach(track => {
+      const cs = getComputedStyle(track);
       // text bits
-      ["--song-title","--song-year","--song-desc"].forEach(v => {
+      ["--track-title","--track-year","--track-desc"].forEach(v => {
         const val = decodeCSSString(cs.getPropertyValue(v));
         if(!val) return;
-        const target = song.querySelector(`[data-fallback="var(${v})"]`);
+        const target = track.querySelector(`[data-fallback="var(${v})"]`);
         if(target && !target.textContent.trim()) target.textContent = val;
       });
       // audio src
-      const audio = song.querySelector("audio.song-audio");
-      if(audio && !audio.getAttribute("src")){
-        const src = unquote(cs.getPropertyValue("--audio-src"));
-        if(src) audio.setAttribute("src", src);
+      const audio = track.querySelector("audio.track-audio");
+      const audioSrc = unquote(cs.getPropertyValue("--audio-src"));
+      if(audio && !audio.getAttribute("src") && audioSrc){
+        audio.setAttribute("src", audioSrc);
       }
       // cover gradients
       const g1 = cs.getPropertyValue("--cover-grad-1").trim();
       const g2 = cs.getPropertyValue("--cover-grad-2").trim();
       if(g1 || g2){
-        song.style.setProperty("--cover-grad-1", g1 || "#001100");
-        song.style.setProperty("--cover-grad-2", g2 || "#39ff14");
+        track.style.setProperty("--cover-grad-1", g1 || "#001100");
+        track.style.setProperty("--cover-grad-2", g2 || "#39ff14");
       }
       // lazy-load transcript if present
-      const details = song.querySelector(".song-transcript");
-      const pre = song.querySelector(".transcript-body");
+      const details = track.querySelector(".track-transcript");
+      const pre = track.querySelector(".transcript-body");
       details?.addEventListener("toggle", async () => {
         if(details.open && pre && !pre.dataset.loaded){
           try{
-            const path = (src || "").replace(/\.(mp3|wav|ogg)(\?.*)?$/i, ".txt");
-            const explicit = song.dataset.transcript || (src ? path : "");
+            const path = (audioSrc || "").replace(/\.(mp3|wav|ogg)(\?.*)?$/i, ".txt");
+            const explicit = track.dataset.transcript || (audioSrc ? path : "");
             if(explicit){
               const res = await fetch(explicit);
               if(res.ok){
@@ -99,8 +99,8 @@
     el.setAttribute("text", el.textContent);
   });
 
-    hydrateNotes();
-    hydrateSongs();
+    hydrateBlurbs();
+    hydrateTracks();
     keyboard();
     year();
   });

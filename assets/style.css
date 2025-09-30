@@ -63,10 +63,14 @@ body.crt::before{
 .brand{ display:inline-block; border-bottom:none; }
 .brand:hover{ background:none; }
 .ascii{ margin:0; font-size: 10px; line-height: 1.1; white-space: pre; }
-.nav{ display:flex; gap: 1rem; margin-top: .5rem; }
-.nav a{ padding: .2rem .4rem; border: 1px solid var(--border); border-radius: 3px; }
-.nav a[aria-current="page"]{ border-color: var(--accent); background: #001900; }
-.nav a:hover{ border-color: var(--accent); }
+.nav{ display:flex; justify-content:space-between; align-items:center; gap: 1rem; flex-wrap:wrap; margin-top: .5rem; }
+.nav-links{ display:flex; gap: 1rem; flex-wrap:wrap; align-items:center; }
+.nav-links a{ padding: .2rem .4rem; border: 1px solid var(--border); border-radius: 3px; }
+.nav-links a[aria-current="page"]{ border-color: var(--accent); background: #001900; }
+.nav-links a:hover{ border-color: var(--accent); }
+.nav-social{ display:flex; gap:.4rem; align-items:center; margin-left:auto; }
+.nav-icon{ display:inline-flex; align-items:center; justify-content:center; min-width: 2.2rem; padding: .2rem .45rem; border: 1px solid var(--border); border-radius: 3px; font-size:.75rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 600; background: rgba(0,255,0,0.05); box-shadow: inset 0 0 0 1px rgba(0,255,0,0.1); text-shadow: 0 0 4px rgba(57,255,20,0.35); }
+.nav-icon:hover{ border-color: var(--accent); background: rgba(0,255,0,0.12); }
 
 main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
 .section{ margin-bottom: 3rem; }
@@ -74,57 +78,58 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
 
 .site-footer{ padding: 2rem 1rem; border-top: 1px solid var(--border); color: var(--muted); }
 
-/* ========== notes (post‑its but terminal) ========== */
-.notes-grid{
+/* ========== blurbs (post‑its but terminal) ========== */
+.blurbs-grid{
   display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;
 }
-.note{
-  --note-bg: #020402; --note-fg: var(--fg); --note-border: #003300;
+.blurb{
+  --blurb-bg: #020402; --blurb-fg: var(--fg); --blurb-border: #003300;
   position: relative;
-  border: 1px solid var(--note-border);
-  padding: .75rem .8rem; background: var(--note-bg); color: var(--note-fg, var(--fg));
+  border: 1px solid var(--blurb-border);
+  padding: .75rem .8rem; background: var(--blurb-bg); color: var(--blurb-fg, var(--fg));
   min-height: 150px; overflow: hidden;
   box-shadow: 0 10px 30px -10px var(--shadow);
 }
-.note .note-title{ font-weight: 700; margin-bottom: .25rem; }
-.note .note-meta{ color: var(--muted); font-size: .85rem; margin-top:.5rem; display:flex; gap:.5rem; }
+.blurb .blurb-title{ font-weight: 700; margin-bottom: .25rem; }
+.blurb .blurb-meta{ color: var(--muted); font-size: .85rem; margin-top:.5rem; display:flex; gap:.5rem; }
 .tilt{ transform: rotate(-0.25deg); }
 .tilt:hover{ transform: rotate(0deg); }
 
 /* pull text from CSS variables into pseudo-elements for pure-CSS render */
-.note.note-welcome .note-title::before{ content: var(--title, "untitled"); }
-.note.note-welcome .note-body::before{ content: var(--body, ""); white-space: pre-wrap; }
-.note.note-welcome .note-date::before{ content: var(--date, ""); }
-.note.note-welcome .note-tags::before{ content: var(--tags, ""); }
 
-.note.note-second .note-title::before{ content: var(--title, "untitled"); }
-.note.note-second .note-body::before{ content: var(--body, ""); white-space: pre-wrap; }
-.note.note-second .note-date::before{ content: var(--date, ""); }
-.note.note-second .note-tags::before{ content: var(--tags, ""); }
+.blurb.blurb-welcome .blurb-title::before{ content: var(--title, "untitled"); }
+.blurb.blurb-welcome .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
+.blurb.blurb-welcome .blurb-date::before{ content: var(--date, ""); }
+.blurb.blurb-welcome .blurb-tags::before{ content: var(--tags, ""); }
 
-/* ========== songs ========== */
-.song{
+.blurb.blurb-second .blurb-title::before{ content: var(--title, "untitled"); }
+.blurb.blurb-second .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
+.blurb.blurb-second .blurb-date::before{ content: var(--date, ""); }
+.blurb.blurb-second .blurb-tags::before{ content: var(--tags, ""); }
+
+/* ========== tracks ========== */
+.track{
   display:grid; grid-template-columns: 220px 1fr; gap: 1rem; align-items: stretch;
   border:1px solid var(--border); padding: 1rem; background: #020402; 
   box-shadow: 0 10px 30px -10px var(--shadow);
 }
-.song-cover{
+.track-cover{
   display:flex; flex-direction:column; justify-content:space-between; 
   padding: .75rem; border:1px solid var(--border);
   background: linear-gradient(135deg, var(--cover-grad-1, #001100) 0%, var(--cover-grad-2, #39ff14) 100%);
   aspect-ratio: 1 / 1; min-height: 220px;
 }
-.song-title{ font-weight: 800; font-size: 1.1rem; }
-.song-year{ color: var(--muted); }
-.song-meta{ display:flex; flex-direction:column; gap:.6rem; }
+.track-title{ font-weight: 800; font-size: 1.1rem; }
+.track-year{ color: var(--muted); }
+.track-meta{ display:flex; flex-direction:column; gap:.6rem; }
 
-.song-transcript summary{ cursor: pointer; }
+.track-transcript summary{ cursor: pointer; }
 .transcript-body{ margin: .5rem 0 0; white-space: pre-wrap; font-size: .95rem; color: var(--muted); }
 
-/* ========== article list ========== */
-.article-list{ list-style:none; padding:0; margin:0; }
-.article-list li{ display:flex; align-items:center; gap:.75rem; padding:.4rem 0; }
-.article-list time{ color: var(--muted); font-size:.9rem; }
+/* ========== rune list ========== */
+.rune-list{ list-style:none; padding:0; margin:0; }
+.rune-list li{ display:flex; align-items:center; gap:.75rem; padding:.4rem 0; }
+.rune-list time{ color: var(--muted); font-size:.9rem; }
 
 /* ========== helpers ========== */
 kbd{ padding: .1rem .25rem; border: 1px solid var(--border); border-bottom-width: 2px; border-radius:3px; }

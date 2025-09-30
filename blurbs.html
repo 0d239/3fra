@@ -3,14 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>3fra</title>
-  <meta name="description" content="sound, sound - sound">
+  <title>3fra — blurbs</title>
+  <meta name="description" content="blurbs from 0d239">
   <link rel="stylesheet" href="assets/style.css">
-  <!-- Blurbs-as-CSS (each file defines CSS variables for one card) -->
   <link rel="stylesheet" href="blurbs/welcome.blurb.css">
   <link rel="stylesheet" href="blurbs/second.blurb.css">
-  <!-- Tracks-as-CSS manifest (defines variables for the UI + audio src) -->
-  <link rel="stylesheet" href="tracks/hello-world/track.css">
 </head>
 <body class="crt">
   <header class="site-header">
@@ -27,7 +24,7 @@ _______       .___________  ________  ________
     <h1 class="sr-only">YOUR_NAME — terminal garden</h1>
     <nav class="nav">
       <div class="nav-links">
-        <a href="blurbs.html">blurbs</a>
+        <a href="blurbs.html" aria-current="page">blurbs</a>
         <a href="tracks.html">tracks</a>
         <a href="runes.html">runes</a>
         <a href="info.html">info</a>
@@ -41,16 +38,7 @@ _______       .___________  ________  ________
   </header>
 
   <main>
-    <!-- INFO -->
-    <section id="info" class="section">
-      <h2>// info</h2>
-      <p>This site is an ode to software. It’s intentionally small, fast, and weird.<br>
-         Built with raw HTML + CSS and a sprinkle of vanilla JS. No frameworks.</p>
-      <p>Keyboard: press <kbd>g</kbd> to toggle the glitch effect. Press <kbd>t</kbd> for tilt.</p>
-    </section>
-
-    <!-- BLURBS (micro posts written as CSS) -->
-    <section id="blurbs" class="section">
+    <section class="section">
       <h2>// blurbs</h2>
       <div class="blurbs-grid">
         <article class="blurb blurb-welcome tilt">
@@ -72,36 +60,6 @@ _______       .___________  ________  ________
         </article>
       </div>
       <p class="hint">→ Add a new blurb by dropping another <code>.blurb.css</code> file in <code>/blurbs</code> and duplicating the <code>&lt;article&gt;</code> with its class.</p>
-    </section>
-
-    <!-- TRACKS (each track has a tiny CSS manifest + audio + optional transcript) -->
-    <section id="tracks" class="section">
-      <h2>// tracks</h2>
-      <article class="track track-hello-world" data-transcript="tracks/hello-world/transcript.txt">
-        <div class="track-cover">
-          <div class="track-title" data-fallback="var(--track-title)"></div>
-          <div class="track-year" data-fallback="var(--track-year)"></div>
-        </div>
-        <div class="track-meta">
-          <p class="track-desc" data-fallback="var(--track-desc)"></p>
-          <audio class="track-audio" controls preload="none"></audio>
-          <details class="track-transcript">
-            <summary>transcript / log</summary>
-            <pre class="transcript-body">(loading…)</pre>
-          </details>
-        </div>
-      </article>
-    </section>
-
-    <!-- RUNES (old-school long-form HTML pages) -->
-    <section id="runes" class="section">
-      <h2>// runes</h2>
-      <ul class="rune-list">
-        <li>
-          <a href="runes/2025-09-30-primitive-internet/index.html">ode to the primitive internet</a>
-          <time datetime="2025-09-30">2025‑09‑30</time>
-        </li>
-      </ul>
     </section>
   </main>
 

@@ -1,9 +1,0 @@
-/* A "manifest in CSS" for one song. */
-.song-hello-world{
-  --song-title: "hello_world";
-  --song-year: "2025";
-  --song-desc: "A 1-second synth beep placeholder.";
-  --audio-src: "songs/hello-world/hello-world.wav";
-  --cover-grad-1: #001100;
-  --cover-grad-2: #39ff14;
-}
