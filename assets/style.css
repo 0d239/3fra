@@ -95,17 +95,17 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
 .tilt{ transform: rotate(-0.25deg); }
 .tilt:hover{ transform: rotate(0deg); }
 
-/* pull text from CSS variables into pseudo-elements for pure-CSS render */
+/* pull text from CSS variables into pseudo-elements only until JS hydrates */
 
-.blurb.blurb-teamwalk .blurb-title::before{ content: var(--title, "untitled"); }
-.blurb.blurb-teamwalk .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
-.blurb.blurb-teamwalk .blurb-date::before{ content: var(--date, ""); }
-.blurb.blurb-teamwalk .blurb-tags::before{ content: var(--tags, ""); }
+.blurb.blurb-teamwalk .blurb-title:empty::before{ content: var(--title, "untitled"); }
+.blurb.blurb-teamwalk .blurb-body:empty::before{ content: var(--body, ""); white-space: pre-wrap; }
+.blurb.blurb-teamwalk .blurb-date:empty::before{ content: var(--date, ""); }
+.blurb.blurb-teamwalk .blurb-tags:empty::before{ content: var(--tags, ""); }
 
-.blurb.blurb-second .blurb-title::before{ content: var(--title, "untitled"); }
-.blurb.blurb-second .blurb-body::before{ content: var(--body, ""); white-space: pre-wrap; }
-.blurb.blurb-second .blurb-date::before{ content: var(--date, ""); }
-.blurb.blurb-second .blurb-tags::before{ content: var(--tags, ""); }
+.blurb.blurb-second .blurb-title:empty::before{ content: var(--title, "untitled"); }
+.blurb.blurb-second .blurb-body:empty::before{ content: var(--body, ""); white-space: pre-wrap; }
+.blurb.blurb-second .blurb-date:empty::before{ content: var(--date, ""); }
+.blurb.blurb-second .blurb-tags:empty::before{ content: var(--tags, ""); }
 
 /* ========== tracks ========== */
 .track{
