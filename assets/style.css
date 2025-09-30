@@ -60,9 +60,12 @@ body.crt::before{
 
 /* ========== layout ============================== */
 .site-header{ padding: 1rem; border-bottom: 1px solid var(--border); }
+.brand{ display:inline-block; border-bottom:none; }
+.brand:hover{ background:none; }
 .ascii{ margin:0; font-size: 10px; line-height: 1.1; white-space: pre; }
 .nav{ display:flex; gap: 1rem; margin-top: .5rem; }
 .nav a{ padding: .2rem .4rem; border: 1px solid var(--border); border-radius: 3px; }
+.nav a[aria-current="page"]{ border-color: var(--accent); background: #001900; }
 .nav a:hover{ border-color: var(--accent); }
 
 main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }

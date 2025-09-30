@@ -3,14 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>3fra</title>
-  <meta name="description" content="sound, sound - sound">
+  <title>3fra — notes</title>
+  <meta name="description" content="notes from 0d239">
   <link rel="stylesheet" href="assets/style.css">
-  <!-- Notes-as-CSS (each file defines CSS variables for one card) -->
   <link rel="stylesheet" href="notes/welcome.note.css">
   <link rel="stylesheet" href="notes/second.note.css">
-  <!-- Songs-as-CSS manifest (defines variables for the UI + audio src) -->
-  <link rel="stylesheet" href="songs/hello-world/song.css">
 </head>
 <body class="crt">
   <header class="site-header">
@@ -26,7 +23,7 @@ _______       .___________  ________  ________
     </a>
     <h1 class="sr-only">YOUR_NAME — terminal garden</h1>
     <nav class="nav">
-      <a href="notes.html">notes</a>
+      <a href="notes.html" aria-current="page">notes</a>
       <a href="songs.html">songs</a>
       <a href="articles.html">articles</a>
       <a href="about.html">about</a>
@@ -34,8 +31,7 @@ _______       .___________  ________  ________
   </header>
 
   <main>
-    <!-- NOTES (micro posts written as CSS) -->
-    <section id="notes" class="section">
+    <section class="section">
       <h2>// notes</h2>
       <div class="notes-grid">
         <article class="note note-welcome tilt">
@@ -57,44 +53,6 @@ _______       .___________  ________  ________
         </article>
       </div>
       <p class="hint">→ Add a new note by dropping another <code>.note.css</code> file in <code>/notes</code> and duplicating the <code>&lt;article&gt;</code> with its class.</p>
-    </section>
-
-    <!-- SONGS (each song has a tiny CSS manifest + audio + optional transcript) -->
-    <section id="songs" class="section">
-      <h2>// songs</h2>
-      <article class="song song-hello-world" data-transcript="songs/hello-world/transcript.txt">
-        <div class="song-cover">
-          <div class="song-title" data-fallback="var(--song-title)"></div>
-          <div class="song-year" data-fallback="var(--song-year)"></div>
-        </div>
-        <div class="song-meta">
-          <p class="song-desc" data-fallback="var(--song-desc)"></p>
-          <audio class="song-audio" controls preload="none"></audio>
-          <details class="song-transcript">
-            <summary>transcript / notes</summary>
-            <pre class="transcript-body">(loading…)</pre>
-          </details>
-        </div>
-      </article>
-    </section>
-
-    <!-- ARTICLES (old-school long-form HTML pages) -->
-    <section id="articles" class="section">
-      <h2>// articles</h2>
-      <ul class="article-list">
-        <li>
-          <a href="articles/2025-09-30-primitive-internet/index.html">ode to the primitive internet</a>
-          <time datetime="2025-09-30">2025‑09‑30</time>
-        </li>
-      </ul>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about" class="section">
-      <h2>// about</h2>
-      <p>This site is an ode to software. It’s intentionally small, fast, and weird.<br>
-         Built with raw HTML + CSS and a sprinkle of vanilla JS. No frameworks.</p>
-      <p>Keyboard: press <kbd>g</kbd> to toggle the glitch effect. Press <kbd>t</kbd> for tilt.</p>
     </section>
   </main>
 
