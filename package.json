@@ -1,0 +1,13 @@
+{
+  "name": "3fra",
+  "version": "1.0.0",
+  "description": "playing in the sand",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "ejs": "^3.1.10",
+    "fs-extra": "^11.3.2"
+  }
+}
