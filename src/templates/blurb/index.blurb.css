@@ -1,0 +1,10 @@
+/* Copy to blurbs/<slug>.blurb.css and tweak the variables. Use \\A for new lines. */
+.blurb-{{SLUG}} {
+  --title: "{{TITLE}}";
+  --date: "{{DATE}}";
+  --tags: "#tag";
+  --body: "replace me";
+  --blurb-bg: #020b02;
+  --blurb-fg: #39ff14;
+  --blurb-border: #004c00;
+}

@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="tracks/hello-world/track.css">
 </head>
 <body class="crt">
-  <%- include('header', { srTitle: 'pull up a chair — tracks', current: 'tracks' }) %>
+  <%- include('../partials/header', { srTitle: 'pull up a chair — tracks', current: 'tracks' }) %>
   <main>
-    <%- include('tracks') %>
+    <%- include('../sections/tracks') %>
   </main>
-  <%- include('footer') %>
+  <%- include('../partials/footer') %>
   <script src="assets/app.js" defer></script>
 </body>
 </html>

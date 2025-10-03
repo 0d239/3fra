@@ -1,0 +1,23 @@
+<%
+  const runeEntries = Array.isArray(runes) ? runes : [];
+%>
+<section id="runes" class="section">
+  <h2>// runes</h2>
+  <% if (runeEntries.length) { %>
+    <ul class="rune-list">
+      <% runeEntries.forEach((rune) => { %>
+        <li>
+          <a href="<%= rune.href %>"><%= rune.title %></a>
+          <% if (rune.date) { %>
+            <time datetime="<%= rune.date %>"><%= rune.date %></time>
+          <% } %>
+          <% if (rune.summary) { %>
+            <p class="muted"><%= rune.summary %></p>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p class="muted">no runes yet.</p>
+  <% } %>
+</section>

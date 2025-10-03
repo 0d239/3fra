@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+const args = process.argv.slice(2);
+if (args.length === 0) {
+  console.error('usage: ./rune <slug or title>');
+  process.exit(1);
+}
+
+const rawInput = args.join(' ').trim();
+if (!rawInput) {
+  console.error('slug or title cannot be empty');
+  process.exit(1);
+}
+
+const slug = rawInput
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+if (!slug) {
+  console.error('could not derive a slug from input');
+  process.exit(1);
+}
+
+const title = rawInput
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ');
+
+const today = new Date().toISOString().slice(0, 10);
+const root = path.resolve(__dirname);
+const targetDir = path.join(root, 'runes', `${today}-${slug}`);
+const templatePath = path.join(root, 'src', 'templates', 'rune', 'index.html');
+
+if (!fs.existsSync(templatePath)) {
+  console.error('missing rune template at src/templates/rune/index.html');
+  process.exit(1);
+}
+
+if (fs.existsSync(targetDir)) {
+  console.error(`rune folder already exists: ${path.relative(root, targetDir)}`);
+  process.exit(1);
+}
+
+fs.mkdirSync(targetDir, { recursive: true });
+let html = fs.readFileSync(templatePath, 'utf8');
+html = html.replace(/{{DATE}}/g, today);
+html = html.replace(/{{TITLE}}/g, title);
+html = html.replace(/{{SLUG}}/g, slug);
+const outputPath = path.join(targetDir, 'index.html');
+fs.writeFileSync(outputPath, html);
+
+const metaPath = path.join(targetDir, 'meta.json');
+const meta = {
+  title,
+  date: today,
+  slug
+};
+fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2) + '\n');
+
+console.log(`created ${path.relative(root, outputPath)}`);
+console.log(`created ${path.relative(root, metaPath)}`);
