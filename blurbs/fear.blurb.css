@@ -3,7 +3,7 @@
   --date: "2025-10-03";
   --tags: "#leon";
   --body: "fear only threatens me when i let silence accumulate";
-  --blurb-bg: #020b02;
-  --blurb-fg: #39ff14;
-  --blurb-border: #004c00;
+  --blurb-bg: #0d0d0d;
+  --blurb-fg: var(--fg);
+  --blurb-border: #333333;
 }

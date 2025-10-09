@@ -3,8 +3,8 @@
   --title: "teamwalk";
   --date: "2025-09-30";
   --tags: "#march #mudwalkers";
-  --body: "we're doing this thing where we're marching with form through the night. are you tryna walk with the team?";
-  --blurb-bg: #010701;
-  --blurb-fg: #39ff14;
-  --blurb-border: #003d00;
+  --body: "we're doing this thing where we're marching with form through the night";
+  --blurb-bg: #0d0d0d;
+  --blurb-fg: var(--fg);
+  --blurb-border: #333333;
 }

@@ -4,7 +4,7 @@
   --date: "{{DATE}}";
   --tags: "#tag";
   --body: "replace me";
-  --blurb-bg: #020b02;
-  --blurb-fg: #39ff14;
-  --blurb-border: #004c00;
+  --blurb-bg: #0d0d0d;
+  --blurb-fg: var(--fg);
+  --blurb-border: #333333;
 }

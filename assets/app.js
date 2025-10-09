@@ -45,8 +45,8 @@
       const g1 = cs.getPropertyValue("--cover-grad-1").trim();
       const g2 = cs.getPropertyValue("--cover-grad-2").trim();
       if(g1 || g2){
-        track.style.setProperty("--cover-grad-1", g1 || "#001100");
-        track.style.setProperty("--cover-grad-2", g2 || "#39ff14");
+        track.style.setProperty("--cover-grad-1", g1 || "#1a1a1a");
+        track.style.setProperty("--cover-grad-2", g2 || "#101010");
       }
       // lazy-load transcript if present
       const details = track.querySelector(".track-transcript");

@@ -3,15 +3,30 @@
   const navCurrent = typeof current !== 'undefined' ? current : null;
 %>
 <header class="site-header">
-  <a class="brand" href="index.html" aria-label="Home">
-    <pre class="ascii glitch" aria-hidden="true">
-_______       .___________  ________  ________ 
-\   _  \    __| _/\_____  \ \_____  \/   __   \
-/  /_\  \  / __ |  /  ____/   _(__  <\____    /
-\  \_/   \/ /_/ | /       \  /       \  /    / 
- \_____  /\____ | \_______ \/______  / /____/  
-       \/      \/         \/       \/          
-    </pre>
+  <a class="brand ascii-brand" href="index.html" aria-label="Home">
+    <div class="ascii-stack" aria-hidden="true">
+      <pre class="ascii glitch ascii-frame ascii-frame--primary">
+ $$$$$$\        $$\  $$$$$$\   $$$$$$\   $$$$$$\  
+$$$ __$$\       $$ |$$  __$$\ $$ ___$$\ $$  __$$\ 
+$$$$\ $$ | $$$$$$$ |\__/  $$ |\_/   $$ |$$ /  $$ |
+$$\$$\$$ |$$  __$$ | $$$$$$  |  $$$$$ / \$$$$$$$ |
+$$ \$$$$ |$$ /  $$ |$$  ____/   \___$$\  \____$$ |
+$$ |\$$$ |$$ |  $$ |$$ |      $$\   $$ |$$\   $$ |
+\$$$$$$  /\$$$$$$$ |$$$$$$$$\ \$$$$$$  |\$$$$$$  |
+ \______/  \_______|\________| \______/  \______/ 
+                                                  
+</pre>
+      <pre class="ascii glitch ascii-frame ascii-frame--alternate">
+ $$$$$$\   $$$$$$\                    
+$$ ___$$\ $$  __$$\                   
+\_/   $$ |$$ /  \__|$$$$$$\  $$$$$$\  
+  $$$$$ / $$$$\    $$  __$$\ \____$$\ 
+  \___$$\ $$  _|   $$ |  \__|$$$$$$$ |
+$$\   $$ |$$ |     $$ |     $$  __$$ |
+\$$$$$$  |$$ |     $$ |     \$$$$$$$ |
+ \______/ \__|     \__|      \_______|
+      </pre>
+    </div>
   </a>
   <h1 class="sr-only"><%= srTitleText %></h1>
   <%- include('./nav', { current: navCurrent }) %>
