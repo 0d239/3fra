@@ -1,0 +1,64 @@
+<% const trackList = (tracks && Array.isArray(tracks.items)) ? tracks.items : []; %>
+<% if (trackList.length) { %>
+  <% const firstTrack = trackList[0]; %>
+  <% const albumTitle = (tracks && (tracks.title || tracks.albumTitle)) ? (tracks.title || tracks.albumTitle) : '0d239 playback console'; %>
+  <% const albumSubtitle = (tracks && (tracks.subtitle || tracks.albumSubtitle)) ? (tracks.subtitle || tracks.albumSubtitle) : ''; %>
+  <% const albumNote = (tracks && tracks.note) ? tracks.note : ''; %>
+  <% const startMode = (typeof playerMode === 'string' && playerMode.toLowerCase() === 'expanded') ? 'expanded' : 'compact'; %>
+  <aside class="album-player ascii tilt <%= startMode === 'compact' ? 'is-compact' : '' %>" data-album-title="<%= albumTitle %>" data-player-mode="<%= startMode %>">
+    <div class="album-body">
+      <figure class="album-cover">
+        <img class="album-cover-art" src="<%= firstTrack.coverArt %>" alt="<%= firstTrack.coverAlt || ('Cover art for ' + firstTrack.title) %>" loading="lazy">
+        <% if (albumSubtitle || albumNote) { %>
+          <figcaption class="album-cover-caption">
+            <span><%= albumSubtitle %><%= (albumSubtitle && albumNote) ? ' · ' : '' %><%= albumNote %></span>
+          </figcaption>
+        <% } %>
+      </figure>
+      <div class="album-content">
+        <div class="album-now-playing">
+          <div class="album-now-label">now playing</div>
+          <div class="album-current-title"><%= firstTrack.title %></div>
+          <% const firstMeta = [firstTrack.year, firstTrack.description].filter(Boolean).join(' — '); %>
+          <% if (firstMeta) { %>
+            <div class="album-current-meta"><%= firstMeta %></div>
+          <% } else { %>
+            <div class="album-current-meta" hidden></div>
+          <% } %>
+        </div>
+        <ol class="album-tracklist" role="listbox" aria-label="tracklist">
+          <% trackList.forEach(function(track, index){ %>
+            <li class="album-track <%= index === 0 ? 'is-active' : '' %>">
+              <button
+                type="button"
+                class="album-track-button"
+                role="option"
+                aria-selected="<%= index === 0 ? 'true' : 'false' %>"
+                data-index="<%= index %>"
+                data-slug="<%= track.slug %>"
+                data-title="<%= track.title %>"
+                data-audio="<%= track.audio %>"
+                data-transcript="<%= track.transcript %>"
+                data-year="<%= track.year %>"
+                data-description="<%= track.description %>"
+              >
+                <span class="album-track-num"><%= String(index + 1).padStart(2, '0') %>.</span>
+                <span class="album-track-name"><%= track.title %></span>
+              </button>
+            </li>
+          <% }); %>
+        </ol>
+        <div class="album-controls">
+          <audio class="album-audio" controls preload="none" src="<%= firstTrack.audio %>"></audio>
+          <details class="album-lyrics">
+            <summary>lyrics / transcript</summary>
+            <pre class="transcript-body" data-placeholder="open to fetch lyrics">open to fetch lyrics</pre>
+          </details>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="album-toggle" aria-expanded="<%= startMode === 'expanded' ? 'true' : 'false' %>">
+      <span class="album-toggle-label">toggle console</span>
+    </button>
+  </aside>
+<% } %>

@@ -4,60 +4,18 @@
   <% if (!trackList.length) { %>
     <p class="hint">No tracks yet — list them in <code>tracks/tracks.json</code> and drop your audio + lyric files alongside them.</p>
   <% } else { %>
-    <% const firstTrack = trackList[0]; %>
-    <% const albumTitle = (tracks && (tracks.title || tracks.albumTitle)) ? (tracks.title || tracks.albumTitle) : '0d239 playback console'; %>
-    <% const albumSubtitle = (tracks && (tracks.subtitle || tracks.albumSubtitle)) ? (tracks.subtitle || tracks.albumSubtitle) : ''; %>
-    <% const albumNote = (tracks && tracks.note) ? tracks.note : ''; %>
-    <article class="album-player ascii tilt" data-album-title="<%= albumTitle %>">
-      <div class="album-body">
-        <figure class="album-cover">
-          <img class="album-cover-art" src="<%= firstTrack.coverArt %>" alt="<%= firstTrack.coverAlt || ('Cover art for ' + firstTrack.title) %>" loading="lazy">
-          <% if (albumSubtitle || albumNote) { %>
-            <figcaption class="album-cover-caption">
-              <span><%= albumSubtitle %><%= (albumSubtitle && albumNote) ? ' · ' : '' %><%= albumNote %></span>
-            </figcaption>
+    <% const albumTitle = (tracks && (tracks.title || tracks.albumTitle)) ? (tracks.title || tracks.albumTitle) : 'the console'; %>
+    <p class="hint">The <span class="hint-strong"><%= albumTitle %></span> console up top is live — hit play, then dive into the lyrics drawer. This page just keeps the lore tidy.</p>
+    <ol class="tracklist-fallback">
+      <% trackList.forEach(function(track, index){ %>
+        <li>
+          <span class="tracklist-index"><%= String(index + 1).padStart(2, '0') %>.</span>
+          <span class="tracklist-title"><%= track.title %></span>
+          <% if (track.year) { %>
+            <span class="tracklist-year"><%= track.year %></span>
           <% } %>
-        </figure>
-        <div class="album-content">
-          <div class="album-now-playing">
-            <div class="album-now-label">now playing</div>
-            <div class="album-current-title"><%= firstTrack.title %></div>
-            <% const firstMeta = [firstTrack.year, firstTrack.description].filter(Boolean).join(' — '); %>
-            <% if (firstMeta) { %>
-              <div class="album-current-meta"><%= firstMeta %></div>
-            <% } %>
-          </div>
-          <ol class="album-tracklist" role="listbox" aria-label="tracklist">
-            <% trackList.forEach(function(track, index){ %>
-              <li class="album-track <%= index === 0 ? 'is-active' : '' %>">
-                <button
-                  type="button"
-                  class="album-track-button"
-                  role="option"
-                  aria-selected="<%= index === 0 ? 'true' : 'false' %>"
-                  data-index="<%= index %>"
-                  data-slug="<%= track.slug %>"
-                  data-title="<%= track.title %>"
-                  data-audio="<%= track.audio %>"
-                  data-transcript="<%= track.transcript %>"
-                  data-year="<%= track.year %>"
-                  data-description="<%= track.description %>"
-                >
-                  <span class="album-track-num"><%= String(index + 1).padStart(2, '0') %>.</span>
-                  <span class="album-track-name"><%= track.title %></span>
-                </button>
-              </li>
-            <% }); %>
-          </ol>
-          <div class="album-controls">
-            <audio class="album-audio" controls preload="none" src="<%= firstTrack.audio %>"></audio>
-            <details class="album-lyrics">
-              <summary>lyrics / transcript</summary>
-              <pre class="transcript-body" data-placeholder="open to fetch lyrics">open to fetch lyrics</pre>
-            </details>
-          </div>
-        </div>
-      </div>
-    </article>
+        </li>
+      <% }); %>
+    </ol>
   <% } %>
 </section>
