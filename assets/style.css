@@ -356,11 +356,44 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
 }
 .album-player.is-compact .album-controls{
   flex-direction:column;
-  align-items:flex-start;
+  align-items:stretch;
   justify-content:flex-end;
   gap:.6rem;
   border-top:none;
   padding-top:0;
+}
+.album-skip-controls{
+  display:none;
+}
+.album-player.is-compact .album-skip-controls{
+  display:flex;
+  gap:.6rem;
+  justify-content:space-between;
+}
+.album-skip{
+  flex:1 1 auto;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,0.55);
+  color: var(--muted);
+  font-family:var(--mono);
+  font-size:.75rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:.45rem .6rem;
+  text-align:center;
+  cursor:pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.album-skip:hover,
+.album-skip:focus-visible{
+  background:rgba(255,255,255,0.1);
+  border-color: var(--accent);
+  color: var(--fg);
+  outline:none;
+}
+.album-skip[disabled]{
+  opacity:.45;
+  cursor:not-allowed;
 }
 .album-player.is-compact .album-audio{
   width:100%;

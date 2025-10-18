@@ -49,6 +49,10 @@
           <% }); %>
         </ol>
         <div class="album-controls">
+          <div class="album-skip-controls" role="group" aria-label="track skip controls">
+            <button type="button" class="album-skip album-skip-prev" data-direction="-1" aria-label="previous track">prev</button>
+            <button type="button" class="album-skip album-skip-next" data-direction="1" aria-label="next track">next</button>
+          </div>
           <audio class="album-audio" controls preload="none" src="<%= firstTrack.audio %>"></audio>
           <details class="album-lyrics">
             <summary>lyrics / transcript</summary>

@@ -66,6 +66,8 @@
     const transcriptEl = details?.querySelector('.transcript-body') || null;
     const toggleButton = player.querySelector('.album-toggle');
     const toggleLabel = toggleButton?.querySelector('.album-toggle-label') || toggleButton;
+    const skipPrevButton = player.querySelector('.album-skip-prev');
+    const skipNextButton = player.querySelector('.album-skip-next');
     const placeholder = transcriptEl?.dataset.placeholder || 'open to fetch lyrics';
 
     if (transcriptEl && !transcriptEl.textContent.trim()) {
@@ -202,6 +204,23 @@
       setTrack(buttons[nextIndex], { autoplay: false });
     }
 
+    function stepTrack(offset, { autoplay = true } = {}){
+      if (!buttons.length) return;
+      const currentIndex = buttons.indexOf(currentButton);
+      const baseIndex = currentIndex === -1 ? 0 : currentIndex;
+      const nextIndex = (baseIndex + offset + buttons.length) % buttons.length;
+      const target = buttons[nextIndex];
+      if (target) {
+        setTrack(target, { autoplay });
+      }
+    }
+
+    function updateSkipButtonState(){
+      const disabled = buttons.length < 2;
+      if (skipPrevButton) skipPrevButton.disabled = disabled;
+      if (skipNextButton) skipNextButton.disabled = disabled;
+    }
+
     function handleKeyNavigation(button, event){
       switch (event.key) {
         case 'ArrowUp':
@@ -240,6 +259,9 @@
         }
       });
     });
+
+    skipPrevButton?.addEventListener('click', () => stepTrack(-1, { autoplay: true }));
+    skipNextButton?.addEventListener('click', () => stepTrack(1, { autoplay: true }));
 
     details?.addEventListener('toggle', () => {
       if (details.open) {
@@ -280,6 +302,7 @@
     const initialMode = player.dataset.playerMode === PLAYER_MODES.EXPANDED ? PLAYER_MODES.EXPANDED : PLAYER_MODES.COMPACT;
     setMode(initialMode, { force: true });
     setTrack(currentButton, { autoplay: false });
+    updateSkipButtonState();
 
     player.dataset.jsInit = '1';
 
