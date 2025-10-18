@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+function exitWith(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+const args = process.argv.slice(2);
+if (args.length === 0) {
+  exitWith('usage: ./song <slug or title>');
+}
+
+const rawInput = args.join(' ').trim();
+if (!rawInput) {
+  exitWith('slug or title cannot be empty');
+}
+
+const slug = rawInput
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+if (!slug) {
+  exitWith('could not derive a slug from input');
+}
+
+const title = rawInput.replace(/\s+/g, ' ');
+const root = path.resolve(__dirname);
+const tracksDir = path.join(root, 'tracks');
+const manifestPath = path.join(tracksDir, 'tracks.json');
+
+if (!fs.existsSync(manifestPath)) {
+  exitWith('missing tracks manifest at tracks/tracks.json');
+}
+
+let manifest;
+try {
+  manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+} catch (err) {
+  exitWith(`failed to read tracks manifest: ${err.message}`);
+}
+
+if (!manifest || !Array.isArray(manifest.tracks)) {
+  exitWith('tracks manifest is missing a tracks array');
+}
+
+const duplicate = manifest.tracks.find((entry) => entry.slug === slug);
+if (duplicate) {
+  exitWith(`track with slug "${slug}" already exists`);
+}
+
+const trackEntry = {
+  slug,
+  title,
+  audio: `${slug}.mp3`,
+  lyrics: 'lyrics.txt'
+};
+
+manifest.tracks.push(trackEntry);
+
+try {
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+} catch (err) {
+  exitWith(`failed to update tracks manifest: ${err.message}`);
+}
+
+const trackFolder = path.join(tracksDir, slug);
+try {
+  fs.mkdirSync(trackFolder, { recursive: true });
+} catch (err) {
+  exitWith(`failed to create track folder: ${err.message}`);
+}
+
+const lyricsPath = path.join(trackFolder, 'lyrics.txt');
+if (!fs.existsSync(lyricsPath)) {
+  fs.writeFileSync(lyricsPath, '');
+}
+
+console.log(`added track entry to tracks/tracks.json with slug ${slug}`);
+console.log(`created track folder at ${path.relative(root, trackFolder)}`);
+console.log('remember to add the audio file and update lyrics.txt if needed');
