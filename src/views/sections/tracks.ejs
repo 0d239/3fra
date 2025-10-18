@@ -1,17 +1,31 @@
 <section id="tracks" class="section">
   <h2>// tracks</h2>
-  <article class="track track-hello-world" data-transcript="tracks/hello-world/transcript.txt">
-    <div class="track-cover">
-      <div class="track-title" data-fallback="var(--track-title)"></div>
-      <div class="track-year" data-fallback="var(--track-year)"></div>
-    </div>
-    <div class="track-meta">
-      <p class="track-desc" data-fallback="var(--track-desc)"></p>
-      <audio class="track-audio" controls preload="none"></audio>
-      <details class="track-transcript">
-        <summary>transcript / log</summary>
-        <pre class="transcript-body">(lyrics coming here…)</pre>
-      </details>
-    </div>
-  </article>
+  <% const trackList = (tracks && Array.isArray(tracks.items)) ? tracks.items : []; %>
+  <% if (!trackList.length) { %>
+    <p class="hint">No tracks yet — list them in <code>tracks/tracks.json</code> and drop your audio + lyric files alongside them.</p>
+  <% } else { %>
+    <% trackList.forEach(function(track){ %>
+      <article class="track track-<%= track.slug %>" data-transcript="<%= track.transcript %>">
+        <div class="track-cover">
+          <img class="track-cover-art" src="<%= track.coverArt %>" alt="<%= track.coverAlt || ('Cover art for ' + track.title) %>" loading="lazy">
+          <div class="track-cover-meta">
+            <div class="track-title"><%= track.title %></div>
+            <% if (track.year) { %>
+              <div class="track-year"><%= track.year %></div>
+            <% } %>
+          </div>
+        </div>
+        <div class="track-meta">
+          <% if (track.description) { %>
+            <p class="track-desc"><%= track.description %></p>
+          <% } %>
+          <audio class="track-audio" controls preload="none" src="<%= track.audio %>"></audio>
+          <details class="track-transcript">
+            <summary>lyrics / transcript</summary>
+            <pre class="transcript-body">(lyrics coming here…)</pre>
+          </details>
+        </div>
+      </article>
+    <% }); %>
+  <% } %>
 </section>

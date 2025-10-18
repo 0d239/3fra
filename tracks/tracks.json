@@ -1,0 +1,24 @@
+{
+  "coverArt": "assets/0d239_black_v1.jpg",
+  "coverAlt": "0d239 cover art",
+  "tracks": [
+    {
+      "slug": "butter",
+      "title": "butter",
+      "audio": "butter.mp3",
+      "lyrics": "lyrics.txt"
+    },
+    {
+      "slug": "muscle",
+      "title": "muscle",
+      "audio": "muscle.mp3",
+      "lyrics": "lyrics.txt"
+    },
+    {
+      "slug": "pelon",
+      "title": "pelon",
+      "audio": "pelon.mp3",
+      "lyrics": "lyrics.txt"
+    }
+  ]
+}
