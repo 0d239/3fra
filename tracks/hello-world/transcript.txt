@@ -1,3 +1,0 @@
-hello_world — transcript
-
-[00:00.000] a single beep to prove the pipeline works
