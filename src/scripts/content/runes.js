@@ -15,7 +15,6 @@ function fallbackTitleFromSlug(slug) {
   return slug
     .split(/[-_]+/)
     .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
@@ -127,4 +126,3 @@ async function loadRunes(projectRoot) {
 module.exports = {
   loadRunes
 };
-
