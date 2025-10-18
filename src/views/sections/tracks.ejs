@@ -5,7 +5,7 @@
     <p class="hint">No tracks yet — list them in <code>tracks/tracks.json</code> and drop your audio + lyric files alongside them.</p>
   <% } else { %>
     <% const albumTitle = (tracks && (tracks.title || tracks.albumTitle)) ? (tracks.title || tracks.albumTitle) : 'the console'; %>
-    <p class="hint">The <span class="hint-strong"><%= albumTitle %></span> console up top is live — hit play, then dive into the lyrics drawer. This page just keeps the lore tidy.</p>
+    <p class="hint">the <span class="hint-strong"><%= albumTitle %></span> console up top is live.</p>
     <ol class="tracklist-fallback">
       <% trackList.forEach(function(track, index){ %>
         <li>

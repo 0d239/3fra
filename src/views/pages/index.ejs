@@ -12,11 +12,11 @@
 </head>
 <body class="crt" data-page="home">
   <%- include('../partials/header', { srTitle: '3fra', current: null }) %>
-  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/info') %>
     <%- include('../sections/runes') %>
   </main>
+  <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
   <%- include('../partials/footer') %>
   <script src="assets/app.js" defer></script>
 </body>
