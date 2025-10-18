@@ -363,15 +363,18 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
   padding-top:0;
 }
 .album-skip-controls{
-  display:none;
-}
-.album-player.is-compact .album-skip-controls{
   display:flex;
   gap:.6rem;
+  align-items:center;
+}
+.album-player.is-compact .album-skip-controls{
   justify-content:space-between;
 }
+.album-player:not(.is-compact) .album-skip-controls{
+  align-self:flex-start;
+}
 .album-skip{
-  flex:1 1 auto;
+  flex:0 0 auto;
   border:1px solid var(--border);
   background:rgba(0,0,0,0.55);
   color: var(--muted);
@@ -383,6 +386,9 @@ main{ max-width: 1000px; margin: 0 auto; padding: 1rem; }
   text-align:center;
   cursor:pointer;
   transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.album-player.is-compact .album-skip{
+  flex:1 1 auto;
 }
 .album-skip:hover,
 .album-skip:focus-visible{
