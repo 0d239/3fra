@@ -74,12 +74,23 @@ async function loadTracks(projectRoot) {
   const sharedCover = normalisePublicPath('', coverArtDefault);
   const coverAlt = manifest.coverAlt?.trim() || 'cover art';
 
+  const albumTitle = [manifest.albumTitle, manifest.title]
+    .map((value) => (typeof value === 'string' ? value.trim() : ''))
+    .find((value) => value) || '';
+  const albumSubtitle = [manifest.albumSubtitle, manifest.subtitle]
+    .map((value) => (typeof value === 'string' ? value.trim() : ''))
+    .find((value) => value) || '';
+  const albumNote = typeof manifest.note === 'string' ? manifest.note.trim() : '';
+
   const rawTracks = Array.isArray(manifest.tracks) ? manifest.tracks : [];
   const items = rawTracks
     .map((track, index) => buildTrack(track, index, sharedCover, coverAlt))
     .filter(Boolean);
 
   return {
+    title: albumTitle,
+    subtitle: albumSubtitle,
+    note: albumNote,
     coverArt: sharedCover,
     coverAlt,
     items
