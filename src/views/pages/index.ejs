@@ -11,12 +11,12 @@
   <link rel="stylesheet" href="blurbs/fear.blurb.css">
   <link rel="stylesheet" href="tracks/hello-world/track.css">
 </head>
-<body class="crt">
-  <%- include('../partials/header') %>
+<body class="crt" data-page="home">
+  <%- include('../partials/header', { srTitle: '3fra', current: null }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/info') %>
     <%- include('../sections/runes') %>
-    <%- include('../sections/tracks') %>
   </main>
   <%- include('../partials/footer') %>
   <script src="assets/app.js" defer></script>

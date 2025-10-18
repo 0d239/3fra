@@ -7,8 +7,9 @@
   <meta name="description" content="info on 0d239">
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="crt">
-  <%- include('../partials/header', { srTitle: 'pull up a chair — info', current: 'info' }) %>
+<body class="crt" data-page="info">
+  <%- include('../partials/header', { srTitle: '3fra — info', current: 'info' }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/info') %>
   </main>

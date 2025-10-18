@@ -7,8 +7,9 @@
   <meta name="description" content="tracks by 0d239">
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="crt">
-  <%- include('../partials/header', { srTitle: 'pull up a chair — tracks', current: 'tracks' }) %>
+<body class="crt" data-page="tracks">
+  <%- include('../partials/header', { srTitle: '3fra — tracks', current: 'tracks' }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
   <main>
     <%- include('../sections/tracks') %>
   </main>

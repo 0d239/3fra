@@ -7,8 +7,9 @@
   <meta name="description" content="runes by 0d239">
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="crt">
-  <%- include('../partials/header', { srTitle: 'pull up a chair — runes', current: 'runes' }) %>
+<body class="crt" data-page="runes">
+  <%- include('../partials/header', { srTitle: '3fra — runes', current: 'runes' }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/runes') %>
   </main>

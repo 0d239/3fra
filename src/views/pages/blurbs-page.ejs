@@ -10,8 +10,9 @@
   <link rel="stylesheet" href="blurbs/second.blurb.css">
   <link rel="stylesheet" href="blurbs/fear.blurb.css">
 </head>
-<body class="crt">
+<body class="crt" data-page="blurbs">
   <%- include('../partials/header', { srTitle: 'blurbs', current: 'blurbs' }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/blurbs') %>
   </main>
