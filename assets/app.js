@@ -122,7 +122,7 @@
       currentButton = buttons[0];
     }
 
-    const ASCII_SEGMENTS = { volume: 10, progress: 20 };
+    const ASCII_SEGMENTS = { volume: 20, progress: 20 };
     const AUTOPLAY_RESUME_WINDOW = 30000; // milliseconds
 
     const STORAGE_KEY = 'album-player-state';
