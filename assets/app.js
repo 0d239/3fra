@@ -49,6 +49,7 @@
   }
 
   let albumController = null;
+  const navigationPlayback = { active: false, shouldResume: false };
 
   function initAlbumPlayer(){
     if (albumController) return albumController;
@@ -60,6 +61,11 @@
     const buttons = Array.from(player.querySelectorAll('.album-track-button'));
     if (!audio || !buttons.length) return null;
 
+    if (audio.controls) {
+      audio.controls = false;
+      audio.removeAttribute('controls');
+    }
+
     const nowTitle = player.querySelector('.album-current-title');
     const metaEl = player.querySelector('.album-current-meta');
     const details = player.querySelector('.album-lyrics');
@@ -68,15 +74,173 @@
     const toggleLabel = toggleButton?.querySelector('.album-toggle-label') || toggleButton;
     const skipPrevButton = player.querySelector('.album-skip-prev');
     const skipNextButton = player.querySelector('.album-skip-next');
+    const playToggleButton = player.querySelector('.album-play-toggle');
+    const playLabel = playToggleButton?.querySelector('.album-play-label') || null;
+    const playIcon = playToggleButton?.querySelector('.album-console-icon') || null;
+    const coverToggle = player.querySelector('.album-cover-toggle');
+    const volumeInput = player.querySelector('.album-volume-input');
+    const volumeAscii = player.querySelector('.album-volume-ascii');
+    const volumeDisplay = player.querySelector('.album-volume-display');
+    const progressInput = player.querySelector('.album-progress-input');
+    const progressAscii = player.querySelector('.album-progress-ascii');
+    const progressCurrent = player.querySelector('.album-progress-current');
+    const progressDuration = player.querySelector('.album-progress-duration');
     const placeholder = transcriptEl?.dataset.placeholder || 'open to fetch lyrics';
 
     if (transcriptEl && !transcriptEl.textContent.trim()) {
       transcriptEl.textContent = placeholder;
     }
 
+    if (progressInput) {
+      progressInput.value = '0';
+      progressInput.disabled = true;
+      progressInput.setAttribute('aria-disabled', 'true');
+    }
+
     let currentButton = buttons.find((btn) => btn.closest('.album-track')?.classList.contains('is-active')) || buttons[0];
     if (!currentButton) {
       currentButton = buttons[0];
+    }
+
+    const ASCII_SEGMENTS = { volume: 10, progress: 20 };
+    const AUTOPLAY_RESUME_WINDOW = 30000; // milliseconds
+
+    const STORAGE_KEY = 'album-player-state';
+
+    function clamp01(value){
+      if (!Number.isFinite(value)) return 0;
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function formatTime(seconds){
+      if (!Number.isFinite(seconds) || seconds < 0) return '--:--';
+      const total = Math.floor(seconds);
+      const mins = Math.floor(total / 60);
+      const secs = total % 60;
+      return `${mins}:${String(secs).padStart(2, '0')}`;
+    }
+
+    let storage = null;
+    let persistedState = { trackSlug: null, position: 0, volume: null, playing: false, lastPlayedAt: null };
+
+    try {
+      const testKey = `${STORAGE_KEY}__test__`;
+      window.localStorage.setItem(testKey, '1');
+      window.localStorage.removeItem(testKey);
+      storage = window.localStorage;
+      const raw = storage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (typeof parsed.trackSlug === 'string' && parsed.trackSlug.trim()) {
+            persistedState.trackSlug = parsed.trackSlug.trim();
+          }
+          if (Number.isFinite(parsed.position) && parsed.position >= 0) {
+            persistedState.position = parsed.position;
+          }
+          if (Number.isFinite(parsed.volume)) {
+            const vol = clamp01(parsed.volume);
+            persistedState.volume = vol;
+          }
+          if (typeof parsed.playing === 'boolean') {
+            persistedState.playing = parsed.playing;
+          }
+          if (Number.isFinite(parsed.lastPlayedAt) && parsed.lastPlayedAt >= 0) {
+            persistedState.lastPlayedAt = parsed.lastPlayedAt;
+          }
+        }
+      }
+    } catch (err) {
+      storage = null;
+      persistedState = { trackSlug: null, position: 0, volume: null, playing: false, lastPlayedAt: null };
+    }
+
+    function persistState(update){
+      if (!storage) return;
+      persistedState = Object.assign({}, persistedState, update || {});
+      try {
+        storage.setItem(STORAGE_KEY, JSON.stringify({
+          trackSlug: persistedState.trackSlug || null,
+          position: Number.isFinite(persistedState.position) && persistedState.position >= 0 ? persistedState.position : 0,
+          volume: Number.isFinite(persistedState.volume) ? clamp01(persistedState.volume) : null,
+          playing: !!persistedState.playing,
+          lastPlayedAt: Number.isFinite(persistedState.lastPlayedAt) && persistedState.lastPlayedAt >= 0 ? persistedState.lastPlayedAt : null
+        }));
+      } catch (err) {
+        /* ignore */
+      }
+    }
+
+    let pendingSeek = null;
+    let lastPositionPersist = 0;
+
+    function getActiveSlug(){
+      return currentButton?.dataset.slug?.trim() || null;
+    }
+
+    function clampTime(seconds){
+      if (!Number.isFinite(seconds) || seconds < 0) return 0;
+      if (!audio) return Math.max(0, seconds);
+      const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null;
+      if (duration === null) return Math.max(0, seconds);
+      return Math.min(Math.max(0, seconds), duration);
+    }
+
+    function attemptSeekTime(seconds){
+      if (!audio) return false;
+      try {
+        audio.currentTime = clampTime(seconds);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function scheduleSeek(slug, time){
+      pendingSeek = { slug: slug || null, time: Math.max(0, Number.isFinite(time) ? time : 0) };
+    }
+
+    function applyPendingSeek(force = false){
+      if (!pendingSeek || !audio) return;
+      if (!force && (audio.readyState || 0) < 1) return;
+      const activeSlug = getActiveSlug();
+      if (pendingSeek.slug && activeSlug && pendingSeek.slug !== activeSlug) {
+        return;
+      }
+      if (attemptSeekTime(pendingSeek.time)) {
+        pendingSeek = null;
+        updateProgressDisplay();
+      }
+    }
+
+    function persistVolumeState(){
+      if (!storage || !audio) return;
+      const volume = audio.muted ? 0 : clamp01(audio.volume);
+      persistState({ volume });
+    }
+
+    function persistPlaybackPosition(force = false){
+      if (!storage || !audio) return;
+      const slug = getActiveSlug();
+      if (!slug) return;
+      const now = Date.now();
+      if (!force && now - lastPositionPersist < 1000) {
+        return;
+      }
+      const position = Number.isFinite(audio.currentTime) && audio.currentTime >= 0 ? audio.currentTime : 0;
+      const isPlaying = !audio.paused && !audio.ended;
+      const lastPlayedAt = isPlaying ? Date.now() : null;
+      persistState({ trackSlug: slug, position, playing: isPlaying, lastPlayedAt });
+      lastPositionPersist = now;
+    }
+
+    function renderAsciiBar(fraction, segments = ASCII_SEGMENTS.volume){
+      const total = Math.max(1, Number.isFinite(segments) ? segments : ASCII_SEGMENTS.volume);
+      const normalized = clamp01(Number.isFinite(fraction) ? fraction : 0);
+      const filled = Math.round(normalized * total);
+      const bars = '='.repeat(filled);
+      const blanks = '-'.repeat(Math.max(0, total - filled));
+      return `[${bars}${blanks}]`;
     }
 
     function setActiveButton(button){
@@ -159,28 +323,134 @@
       }
     }
 
-    function setTrack(button, { autoplay = false } = {}){
+    function updatePlayButtonState(){
+      if (!playToggleButton) return;
+      const isPlaying = audio && !audio.paused && !audio.ended;
+      if (playLabel) {
+        playLabel.textContent = isPlaying ? ' pause' : ' play';
+      }
+      if (playIcon) {
+        playIcon.textContent = isPlaying ? '||' : '>';
+      }
+      playToggleButton.setAttribute('aria-label', isPlaying ? 'pause' : 'play');
+      playToggleButton.dataset.state = isPlaying ? 'playing' : 'paused';
+      if (coverToggle) {
+        coverToggle.setAttribute('aria-label', isPlaying ? 'pause' : 'play');
+        coverToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+        coverToggle.dataset.state = isPlaying ? 'playing' : 'paused';
+      }
+    }
+
+    function updateVolumeDisplay(){
+      if (!audio) return;
+      const volume = audio.muted ? 0 : clamp01(Number.isFinite(audio.volume) ? audio.volume : 0);
+      const percent = Math.round(volume * 100);
+      if (volumeAscii) {
+        volumeAscii.textContent = renderAsciiBar(volume, ASCII_SEGMENTS.volume);
+      }
+      if (volumeInput && !volumeInput.matches(':active')) {
+        volumeInput.value = String(percent);
+      }
+      if (volumeDisplay) {
+        volumeDisplay.textContent = `${percent}%`;
+      }
+      if (volumeInput) {
+        volumeInput.setAttribute('aria-valuenow', String(percent));
+        volumeInput.setAttribute('aria-valuetext', `${percent}%`);
+      }
+    }
+
+    function updateProgressDisplay(){
+      if (!audio) return;
+      const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+      const current = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+      const hasDuration = duration > 0;
+      const fraction = hasDuration ? current / duration : 0;
+      const clamped = clamp01(Number.isFinite(fraction) ? fraction : 0);
+
+      if (progressAscii) {
+        progressAscii.textContent = renderAsciiBar(clamped, ASCII_SEGMENTS.progress);
+      }
+
+      const currentText = hasDuration || current > 0 ? formatTime(current) : '0:00';
+      const durationText = hasDuration ? formatTime(duration) : '--:--';
+      if (progressCurrent) {
+        progressCurrent.textContent = currentText;
+      }
+      if (progressDuration) {
+        progressDuration.textContent = durationText;
+      }
+
+      if (progressInput) {
+        if (!progressInput.matches(':active')) {
+          progressInput.value = String(Math.round(clamped * 100));
+        }
+        progressInput.disabled = !hasDuration;
+        if (hasDuration) {
+          progressInput.removeAttribute('aria-disabled');
+        } else {
+          progressInput.setAttribute('aria-disabled', 'true');
+        }
+        progressInput.setAttribute('aria-valuenow', String(Math.round(clamped * 100)));
+        const valueText = hasDuration ? `${currentText} of ${durationText}` : `${Math.round(clamped * 100)}%`;
+        progressInput.setAttribute('aria-valuetext', valueText);
+      }
+    }
+
+    function setTrack(button, { autoplay = false, resumeTime = null, persist = true } = {}){
       if (!button || !audio) return;
       const newSrc = button.dataset.audio?.trim();
       if (!newSrc) return;
 
+      const slug = button.dataset.slug?.trim() || null;
+      const resume = Number.isFinite(resumeTime) && resumeTime >= 0 ? resumeTime : null;
       const wasPlaying = !audio.paused && !audio.ended;
       const shouldAutoplay = autoplay || wasPlaying;
       const sourceChanged = audio.getAttribute('src') !== newSrc;
 
       if (sourceChanged) {
+        audio.pause();
         audio.setAttribute('src', newSrc);
-        if (!shouldAutoplay) {
-          audio.pause();
+        if (resume === null) {
           try {
             audio.currentTime = 0;
           } catch (err) {
             /* ignore */
           }
         }
+      } else if (resume !== null) {
+        if (!attemptSeekTime(resume)) {
+          scheduleSeek(slug, resume);
+        } else {
+          pendingSeek = null;
+        }
       }
 
       setActiveButton(button);
+
+      let appliedSeek = false;
+      if (resume !== null && sourceChanged) {
+        appliedSeek = attemptSeekTime(resume);
+        if (!appliedSeek) {
+          scheduleSeek(slug, resume);
+        } else {
+          pendingSeek = null;
+        }
+      } else if (resume === null && sourceChanged) {
+        appliedSeek = attemptSeekTime(0);
+        if (!appliedSeek) {
+          scheduleSeek(slug, 0);
+        } else {
+          pendingSeek = null;
+        }
+      } else if (resume === null && !sourceChanged) {
+        pendingSeek = null;
+      }
+
+      updateProgressDisplay();
+      if (!appliedSeek) {
+        applyPendingSeek(false);
+      }
 
       if (details?.open) {
         loadLyrics();
@@ -189,6 +459,15 @@
       if (shouldAutoplay) {
         audio.play().catch(() => {});
       }
+
+      if (persist) {
+        const positionToStore = resume !== null ? resume : 0;
+        const lastPlayedAt = shouldAutoplay ? Date.now() : null;
+        persistState({ trackSlug: slug || null, position: positionToStore, playing: !!shouldAutoplay, lastPlayedAt });
+        lastPositionPersist = Date.now();
+      }
+
+      updatePlayButtonState();
     }
 
     function focusTrack(index){
@@ -263,11 +542,121 @@
     skipPrevButton?.addEventListener('click', () => stepTrack(-1, { autoplay: true }));
     skipNextButton?.addEventListener('click', () => stepTrack(1, { autoplay: true }));
 
+    function togglePlayback(){
+      if (!audio) return;
+      const willPlay = audio.paused || audio.ended;
+      if (willPlay) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+      if (navigationPlayback.active) {
+        navigationPlayback.shouldResume = willPlay;
+      }
+    }
+
+    playToggleButton?.addEventListener('click', togglePlayback);
+    coverToggle?.addEventListener('click', togglePlayback);
+
+    volumeInput?.addEventListener('input', (event) => {
+      if (!audio) return;
+      const value = Number(event.target.value);
+      if (!Number.isFinite(value)) return;
+      const normalized = Math.max(0, Math.min(100, value));
+      const nextVolume = clamp01(normalized / 100);
+      audio.muted = nextVolume <= 0;
+      audio.volume = nextVolume;
+      updateVolumeDisplay();
+    });
+
+    volumeInput?.addEventListener('change', () => {
+      updateVolumeDisplay();
+      persistVolumeState();
+    });
+
+    progressInput?.addEventListener('input', (event) => {
+      if (!audio) return;
+      const value = Number(event.target.value);
+      if (!Number.isFinite(value)) return;
+      const ratio = Math.max(0, Math.min(100, value)) / 100;
+      if (progressAscii) {
+        progressAscii.textContent = renderAsciiBar(ratio, ASCII_SEGMENTS.progress);
+      }
+      if (Number.isFinite(audio.duration) && audio.duration > 0) {
+        attemptSeekTime(ratio * audio.duration);
+      }
+      updateProgressDisplay();
+    });
+
+    progressInput?.addEventListener('change', () => {
+      updateProgressDisplay();
+      persistPlaybackPosition(true);
+    });
+
+    progressInput?.addEventListener('blur', () => {
+      updateProgressDisplay();
+    });
+
     details?.addEventListener('toggle', () => {
       if (details.open) {
         loadLyrics();
       }
     });
+
+    audio.addEventListener('play', () => {
+      updatePlayButtonState();
+      updateProgressDisplay();
+      persistPlaybackPosition(true);
+    });
+    audio.addEventListener('pause', () => {
+      updatePlayButtonState();
+      updateProgressDisplay();
+      persistPlaybackPosition(true);
+    });
+    audio.addEventListener('ended', () => {
+      updatePlayButtonState();
+      updateProgressDisplay();
+      const slug = getActiveSlug();
+      persistState({ trackSlug: slug || null, position: 0, playing: false, lastPlayedAt: null });
+      lastPositionPersist = Date.now();
+    });
+    audio.addEventListener('timeupdate', () => {
+      updateProgressDisplay();
+      persistPlaybackPosition(false);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      applyPendingSeek(true);
+      updateProgressDisplay();
+      persistPlaybackPosition(true);
+    });
+    audio.addEventListener('durationchange', () => {
+      updateProgressDisplay();
+    });
+    audio.addEventListener('seeked', () => {
+      updateProgressDisplay();
+      persistPlaybackPosition(true);
+    });
+    audio.addEventListener('volumechange', () => {
+      updateVolumeDisplay();
+      persistVolumeState();
+    });
+
+    function isPlaying(){
+      return !!(audio && !audio.paused && !audio.ended);
+    }
+
+    function markNavigationStart(){
+      navigationPlayback.shouldResume = isPlaying();
+      navigationPlayback.active = true;
+    }
+
+    function markNavigationEnd(){
+      if (navigationPlayback.shouldResume && audio && audio.paused) {
+        audio.play().catch(() => {});
+      }
+      navigationPlayback.active = false;
+      navigationPlayback.shouldResume = false;
+    }
 
     function setMode(mode, { force = false } = {}){
       const next = mode === PLAYER_MODES.EXPANDED ? PLAYER_MODES.EXPANDED : PLAYER_MODES.COMPACT;
@@ -299,10 +688,39 @@
       }
     });
 
+    const savedVolume = Number.isFinite(persistedState.volume) ? clamp01(persistedState.volume) : null;
+    if (savedVolume !== null) {
+      audio.volume = savedVolume;
+      audio.muted = savedVolume <= 0;
+    }
+
+    let initialButton = currentButton;
+    let initialResume = null;
+    if (persistedState.trackSlug) {
+      const match = buttons.find((btn) => btn.dataset.slug === persistedState.trackSlug);
+      if (match) {
+        initialButton = match;
+        if (Number.isFinite(persistedState.position) && persistedState.position > 0) {
+          initialResume = persistedState.position;
+        }
+      }
+    }
+    if (!initialButton) {
+      initialButton = buttons[0];
+    }
+
     const initialMode = player.dataset.playerMode === PLAYER_MODES.EXPANDED ? PLAYER_MODES.EXPANDED : PLAYER_MODES.COMPACT;
+    const lastPlayedAt = Number.isFinite(persistedState.lastPlayedAt) && persistedState.lastPlayedAt >= 0 ? persistedState.lastPlayedAt : null;
+    const shouldResumePlayback = persistedState.playing === true && lastPlayedAt !== null && (Date.now() - lastPlayedAt) <= AUTOPLAY_RESUME_WINDOW;
+
     setMode(initialMode, { force: true });
-    setTrack(currentButton, { autoplay: false });
+    setTrack(initialButton, { autoplay: shouldResumePlayback, resumeTime: initialResume, persist: false });
+    if (!shouldResumePlayback && persistedState.playing) {
+      persistState({ playing: false, lastPlayedAt: null });
+    }
     updateSkipButtonState();
+    updatePlayButtonState();
+    updateVolumeDisplay();
 
     player.dataset.jsInit = '1';
 
@@ -310,7 +728,15 @@
       setMode,
       getMode,
       expand: () => setMode(PLAYER_MODES.EXPANDED, { force: true }),
-      compact: () => setMode(PLAYER_MODES.COMPACT, { force: true })
+      compact: () => setMode(PLAYER_MODES.COMPACT, { force: true }),
+      isPlaying,
+      resumePlayback: () => {
+        if (audio && audio.paused) {
+          audio.play().catch(() => {});
+        }
+      },
+      onNavigationStart: markNavigationStart,
+      onNavigationEnd: markNavigationEnd
     };
 
     return albumController;
@@ -475,14 +901,32 @@
 
       if (target.href === window.location.href) return;
 
-      load(target.href, { push: true, scrollToTop: true });
+      const controller = initAlbumPlayer();
+      controller?.onNavigationStart?.();
+      const navPromise = load(target.href, { push: true, scrollToTop: true });
+      if (navPromise && typeof navPromise.finally === 'function') {
+        navPromise.finally(() => {
+          controller?.onNavigationEnd?.();
+        });
+      } else {
+        controller?.onNavigationEnd?.();
+      }
     }
 
     document.addEventListener('click', handleClick);
 
     window.addEventListener('popstate', (event) => {
       const url = event.state?.url || window.location.href;
-      load(url, { push: false, scrollToTop: false });
+      const controller = initAlbumPlayer();
+      controller?.onNavigationStart?.();
+      const navPromise = load(url, { push: false, scrollToTop: false });
+      if (navPromise && typeof navPromise.finally === 'function') {
+        navPromise.finally(() => {
+          controller?.onNavigationEnd?.();
+        });
+      } else {
+        controller?.onNavigationEnd?.();
+      }
     });
 
     history.replaceState({ url: window.location.href }, '', window.location.href);

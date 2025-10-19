@@ -8,7 +8,62 @@
   <aside class="album-player ascii tilt <%= startMode === 'compact' ? 'is-compact' : '' %>" data-album-title="<%= albumTitle %>" data-player-mode="<%= startMode %>">
     <div class="album-body">
       <figure class="album-cover">
-        <img class="album-cover-art" src="<%= firstTrack.coverArt %>" alt="<%= firstTrack.coverAlt || ('Cover art for ' + firstTrack.title) %>" loading="lazy">
+        <div class="album-cover-frame">
+          <button type="button" class="album-cover-toggle" aria-label="play" aria-pressed="false" data-state="paused">
+            <img class="album-cover-art" src="<%= firstTrack.coverArt %>" alt="<%= firstTrack.coverAlt || ('Cover art for ' + firstTrack.title) %>" loading="lazy">
+          </button>
+        </div>
+        <div class="album-cover-console" role="group" aria-label="playback controls">
+          <div class="album-console-frame">
+            <div class="album-console-line" aria-hidden="true">┌────────────────────────────────┐</div>
+            <div class="album-console-body">
+              <span class="album-console-brace" aria-hidden="true">│</span>
+              <button type="button" class="album-console-btn album-skip album-skip-prev" data-direction="-1" aria-label="previous track">
+                <span class="album-console-icon" aria-hidden="true">&lt;&lt;</span>
+                <span class="album-console-text" aria-hidden="true"> prev</span>
+                <span class="sr-only">previous track</span>
+              </button>
+              <button type="button" class="album-console-btn album-play-toggle" aria-label="play">
+                <span class="album-console-icon" aria-hidden="true">&gt;</span>
+                <span class="album-play-label" aria-hidden="true"> play</span>
+                <span class="sr-only">play or pause</span>
+              </button>
+              <button type="button" class="album-console-btn album-skip album-skip-next" data-direction="1" aria-label="next track">
+                <span class="album-console-text" aria-hidden="true">next </span>
+                <span class="album-console-icon" aria-hidden="true">&gt;&gt;</span>
+                <span class="sr-only">next track</span>
+              </button>
+              <span class="album-console-divider" aria-hidden="true">│</span>
+              <div class="album-progress" role="group" aria-label="track position">
+                <span class="album-progress-label" aria-hidden="true">trk</span>
+                <div class="album-meter">
+                  <div class="album-meter-track">
+                    <span class="album-progress-ascii" aria-hidden="true" data-progress-text>[--------------------]</span>
+                    <input class="album-progress-input" type="range" min="0" max="100" value="0" step="1" aria-label="track position">
+                  </div>
+                  <span class="album-progress-display" aria-hidden="true">
+                    <span class="album-progress-current">0:00</span>
+                    <span class="album-progress-separator"> / </span>
+                    <span class="album-progress-duration">--:--</span>
+                  </span>
+                </div>
+              </div>
+              <span class="album-console-divider" aria-hidden="true">│</span>
+              <div class="album-volume" role="group" aria-label="volume">
+                <span class="album-volume-label" aria-hidden="true">vol</span>
+                <div class="album-meter">
+                  <div class="album-meter-track">
+                    <span class="album-volume-ascii" aria-hidden="true" data-volume-text>[----------]</span>
+                    <input class="album-volume-input" type="range" min="0" max="100" value="100" aria-label="volume">
+                  </div>
+                  <span class="album-volume-display" aria-hidden="true">100%</span>
+                </div>
+              </div>
+              <span class="album-console-brace" aria-hidden="true">│</span>
+            </div>
+            <div class="album-console-line" aria-hidden="true">└────────────────────────────────┘</div>
+          </div>
+        </div>
         <% if (albumSubtitle || albumNote) { %>
           <figcaption class="album-cover-caption">
             <span><%= albumSubtitle %><%= (albumSubtitle && albumNote) ? ' · ' : '' %><%= albumNote %></span>
@@ -49,10 +104,6 @@
           <% }); %>
         </ol>
         <div class="album-controls">
-          <div class="album-skip-controls" role="group" aria-label="track skip controls">
-            <button type="button" class="album-skip album-skip-prev" data-direction="-1" aria-label="previous track">prev</button>
-            <button type="button" class="album-skip album-skip-next" data-direction="1" aria-label="next track">next</button>
-          </div>
           <audio class="album-audio" controls preload="none" src="<%= firstTrack.audio %>"></audio>
           <details class="album-lyrics">
             <summary>lyrics / transcript</summary>
