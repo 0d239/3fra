@@ -1,0 +1,23 @@
+<%
+  const linkEntries = [
+    { href: 'blurbs.html', title: 'blurbs', summary: 'shorter form writings that do not constitute runes.' },
+    { href: 'https://github.com/0d239', title: 'github', summary: 'code and files including the code and files for this very website.', external: true },
+    { href: 'https://x.com/0d239_', title: 'x', summary: 'tpot and the void.', external: true },
+    { href: 'https://soundcloud.com/0d239', title: 'soundcloud', summary: 'low stakes environment. early access to early versions of songs.', external: true },
+    { href: 'https://typingclub.com', title: 'typing club', summary: 'type faster. important to remove the barrier between your neurons and their expression.', external: true },
+    { href: 'https://rimar.io', title: 'rimar.io', summary: 'spanish rhyming dictionary.', external: true },
+  ];
+%>
+<section id="links" class="section">
+  <h2>// links</h2>
+  <ul class="rune-list">
+    <% linkEntries.forEach((entry) => { %>
+      <li>
+        <a href="<%= entry.href %>"<% if (entry.external) { %> target="_blank" rel="noreferrer"<% } %>><%= entry.title %></a>
+        <% if (entry.summary) { %>
+          <p class="muted"><%= entry.summary %></p>
+        <% } %>
+      </li>
+    <% }); %>
+  </ul>
+</section>
