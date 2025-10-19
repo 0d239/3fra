@@ -69,7 +69,9 @@
     const nowTitle = player.querySelector('.album-current-title');
     const metaEl = player.querySelector('.album-current-meta');
     const details = player.querySelector('.album-lyrics');
-    const transcriptEl = details?.querySelector('.transcript-body') || null;
+    const annotationsRoot = details?.querySelector('.album-annotations') || null;
+    const annotationTabs = annotationsRoot ? Array.from(annotationsRoot.querySelectorAll('.album-annotations-tab')) : [];
+    const annotationBodies = annotationsRoot ? Array.from(annotationsRoot.querySelectorAll('.album-annotations-body')) : [];
     const toggleButton = player.querySelector('.album-toggle');
     const toggleLabel = toggleButton?.querySelector('.album-toggle-label') || toggleButton;
     const skipPrevButton = player.querySelector('.album-skip-prev');
@@ -85,11 +87,29 @@
     const progressAscii = player.querySelector('.album-progress-ascii');
     const progressCurrent = player.querySelector('.album-progress-current');
     const progressDuration = player.querySelector('.album-progress-duration');
-    const placeholder = transcriptEl?.dataset.placeholder || 'open to fetch lyrics';
+    const annotationsConfig = {};
+    let activeAnnotation = annotationsRoot?.dataset.active?.trim().toLowerCase() || 'lyrics';
 
-    if (transcriptEl && !transcriptEl.textContent.trim()) {
-      transcriptEl.textContent = placeholder;
-    }
+    annotationBodies.forEach((body) => {
+      const view = body.dataset.view?.trim().toLowerCase();
+      if (!view) return;
+      annotationsConfig[view] = {
+        body,
+        placeholder: body.dataset.placeholder || '',
+        loadingText: body.dataset.loadingText || 'loading…',
+        emptyText: body.dataset.emptyText || '',
+        errorText: body.dataset.errorText || '(error loading)'
+      };
+      if (!body.dataset.loaded) {
+        body.dataset.loaded = '';
+      }
+      if (!body.dataset.current) {
+        body.dataset.current = '';
+      }
+      if (!body.textContent.trim()) {
+        body.textContent = annotationsConfig[view].placeholder || '';
+      }
+    });
 
     if (progressInput) {
       progressInput.value = '0';
@@ -275,17 +295,20 @@
         }
       }
 
-      const transcript = button.dataset.transcript?.trim() || '';
-      player.dataset.transcript = transcript;
-      if (transcriptEl) {
-        transcriptEl.dataset.loaded = '';
-        transcriptEl.dataset.current = '';
-        if (transcript) {
-          transcriptEl.textContent = placeholder;
-        } else {
-          transcriptEl.textContent = '(no transcript)';
-          transcriptEl.dataset.loaded = '1';
-        }
+      const lyricsSrc = button.dataset.lyrics?.trim() || '';
+      const commentarySrc = button.dataset.commentary?.trim() || '';
+      if (lyricsSrc) {
+        player.dataset.lyrics = lyricsSrc;
+      } else {
+        player.removeAttribute('data-lyrics');
+      }
+      if (commentarySrc) {
+        player.dataset.commentary = commentarySrc;
+      } else {
+        player.removeAttribute('data-commentary');
+      }
+      if (annotationsRoot) {
+        resetAnnotations('lyrics');
       }
 
       if (button.dataset.slug) {
@@ -295,32 +318,106 @@
       }
     }
 
-    async function loadLyrics(){
-      if (!details?.open || !transcriptEl) return;
-      const transcript = (player.dataset.transcript || '').trim();
-      if (!transcript) {
-        transcriptEl.textContent = '(no transcript)';
-        transcriptEl.dataset.loaded = '1';
-        transcriptEl.dataset.current = '';
+    function getAnnotationSource(view){
+      const key = (view || '').toLowerCase();
+      if (key === 'lyrics') {
+        return (player.dataset.lyrics || '').trim();
+      }
+      if (key === 'commentary') {
+        return (player.dataset.commentary || '').trim();
+      }
+      return (player.dataset[key] || '').trim();
+    }
+
+    function setAnnotationView(view, { ensure = true } = {}){
+      if (!annotationsRoot || !Object.keys(annotationsConfig).length) return;
+      let key = (view || '').toLowerCase();
+      if (!annotationsConfig[key]) {
+        key = Object.keys(annotationsConfig)[0];
+        if (!key) return;
+      }
+      const info = annotationsConfig[key];
+      activeAnnotation = key;
+      annotationsRoot.dataset.active = key;
+
+      annotationTabs.forEach((tab) => {
+        const tabView = tab.dataset.view?.trim().toLowerCase();
+        const isActive = tabView === key;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      annotationBodies.forEach((body) => {
+        const bodyView = body.dataset.view?.trim().toLowerCase();
+        const isActive = bodyView === key;
+        body.classList.toggle('is-active', isActive);
+        if (isActive) {
+          body.removeAttribute('hidden');
+          body.setAttribute('aria-hidden', 'false');
+        } else {
+          body.setAttribute('hidden', '');
+          body.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      if (ensure) {
+        ensureAnnotation(key);
+      }
+    }
+
+    function resetAnnotations(defaultView = 'lyrics'){
+      if (!annotationsRoot || !Object.keys(annotationsConfig).length) return;
+      Object.entries(annotationsConfig).forEach(([view, info]) => {
+        const source = getAnnotationSource(view);
+        info.body.dataset.loaded = '';
+        info.body.dataset.current = '';
+        if (source) {
+          info.body.textContent = info.placeholder || '';
+        } else {
+          info.body.textContent = info.emptyText || '';
+          info.body.dataset.loaded = '1';
+        }
+        info.body.scrollTop = 0;
+      });
+      setAnnotationView(defaultView, { ensure: !!(details?.open) });
+    }
+
+    async function ensureAnnotation(view){
+      if (!details?.open || !annotationsRoot) return;
+      const key = (view || '').toLowerCase();
+      const info = annotationsConfig[key];
+      if (!info) return;
+      const source = getAnnotationSource(key);
+      if (!source) {
+        info.body.textContent = info.emptyText || '';
+        info.body.dataset.loaded = '1';
+        info.body.dataset.current = '';
         return;
       }
-      if (transcriptEl.dataset.loaded === '1' && transcriptEl.dataset.current === transcript) {
+      if (info.body.dataset.loaded === '1' && info.body.dataset.current === source) {
         return;
       }
-      transcriptEl.textContent = 'loading lyrics…';
+      info.body.textContent = info.loadingText || 'loading…';
       try {
-        const res = await fetch(transcript);
+        const res = await fetch(source);
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
         const text = await res.text();
-        transcriptEl.textContent = text.trim() ? text : '(blank transcript)';
+        const trimmed = text.trim();
+        info.body.textContent = trimmed ? trimmed : (info.emptyText || '(blank)');
       } catch (err) {
-        transcriptEl.textContent = '(error loading transcript)';
+        info.body.textContent = info.errorText || '(error loading)';
       } finally {
-        transcriptEl.dataset.loaded = '1';
-        transcriptEl.dataset.current = transcript;
+        info.body.dataset.loaded = '1';
+        info.body.dataset.current = source;
+        info.body.scrollTop = 0;
       }
+    }
+
+    if (annotationsRoot && Object.keys(annotationsConfig).length) {
+      setAnnotationView(activeAnnotation, { ensure: false });
     }
 
     function updatePlayButtonState(){
@@ -453,7 +550,7 @@
       }
 
       if (details?.open) {
-        loadLyrics();
+        ensureAnnotation(activeAnnotation);
       }
 
       if (shouldAutoplay) {
@@ -539,6 +636,52 @@
       });
     });
 
+    annotationTabs.forEach((tab) => {
+      tab.addEventListener('click', (event) => {
+        event.preventDefault();
+        const view = tab.dataset.view?.trim().toLowerCase();
+        if (view) {
+          setAnnotationView(view, { ensure: !!(details?.open) });
+        }
+      });
+      tab.addEventListener('keydown', (event) => {
+        if (!annotationTabs.length) return;
+        const currentIndex = annotationTabs.indexOf(tab);
+        let targetIndex = currentIndex;
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          targetIndex = (currentIndex - 1 + annotationTabs.length) % annotationTabs.length;
+        } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          targetIndex = (currentIndex + 1) % annotationTabs.length;
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          targetIndex = 0;
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          targetIndex = annotationTabs.length - 1;
+        } else if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          const view = tab.dataset.view?.trim().toLowerCase();
+          if (view) {
+            setAnnotationView(view, { ensure: !!(details?.open) });
+          }
+          return;
+        } else {
+          return;
+        }
+
+        const nextTab = annotationTabs[targetIndex];
+        if (nextTab) {
+          nextTab.focus();
+          const view = nextTab.dataset.view?.trim().toLowerCase();
+          if (view) {
+            setAnnotationView(view, { ensure: !!(details?.open) });
+          }
+        }
+      });
+    });
+
     skipPrevButton?.addEventListener('click', () => stepTrack(-1, { autoplay: true }));
     skipNextButton?.addEventListener('click', () => stepTrack(1, { autoplay: true }));
 
@@ -599,7 +742,7 @@
 
     details?.addEventListener('toggle', () => {
       if (details.open) {
-        loadLyrics();
+        ensureAnnotation(activeAnnotation);
       }
     });
 
@@ -684,7 +827,7 @@
       const next = getMode() === PLAYER_MODES.EXPANDED ? PLAYER_MODES.COMPACT : PLAYER_MODES.EXPANDED;
       setMode(next, { force: true });
       if (next === PLAYER_MODES.EXPANDED && details && details.open) {
-        loadLyrics();
+        ensureAnnotation(activeAnnotation);
       }
     });
 

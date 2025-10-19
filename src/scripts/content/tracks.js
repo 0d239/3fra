@@ -40,6 +40,7 @@ function buildTrack(rawTrack, index, sharedCover, sharedCoverAlt) {
   const description = rawTrack.description?.trim() || '';
 
   const lyricsSrc = normalisePublicPath(slug, rawTrack.lyrics || rawTrack.transcript || rawTrack.lyricsSrc || '');
+  const commentarySrc = normalisePublicPath(slug, rawTrack.commentary || rawTrack.commentarySrc || 'commentary.txt');
   const transcript = lyricsSrc || audioSrc.replace(/\.(mp3|wav|ogg|m4a)(\?.*)?$/i, '.txt');
 
   const coverOverride = normalisePublicPath(slug, rawTrack.cover || rawTrack.coverArt || '');
@@ -52,6 +53,8 @@ function buildTrack(rawTrack, index, sharedCover, sharedCoverAlt) {
     description,
     audio: audioSrc,
     transcript,
+    lyrics: lyricsSrc,
+    commentary: commentarySrc,
     coverArt: coverOverride || sharedCover,
     coverAlt
   };

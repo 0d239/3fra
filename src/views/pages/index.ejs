@@ -14,9 +14,11 @@
   <%- include('../partials/header', { srTitle: '3fra', current: null }) %>
   <main>
     <%- include('../sections/info') %>
-    <%- include('../sections/runes') %>
   </main>
   <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
+  <div class="layout-constrained">
+    <%- include('../sections/runes') %>
+  </div>
   <%- include('../partials/footer') %>
   <script src="assets/app.js" defer></script>
 </body>

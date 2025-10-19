@@ -6,19 +6,22 @@
       "slug": "butter",
       "title": "butter",
       "audio": "butter.mp3",
-      "lyrics": "lyrics.txt"
+      "lyrics": "lyrics.txt",
+      "commentary": "commentary.txt"
     },
     {
       "slug": "muscle",
       "title": "muscle",
       "audio": "muscle.mp3",
-      "lyrics": "lyrics.txt"
+      "lyrics": "lyrics.txt",
+      "commentary": "commentary.txt"
     },
     {
       "slug": "pelon",
       "title": "pelon",
       "audio": "pelon.mp3",
-      "lyrics": "lyrics.txt"
+      "lyrics": "lyrics.txt",
+      "commentary": "commentary.txt"
     }
   ]
 }

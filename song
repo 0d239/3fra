@@ -56,7 +56,8 @@ const trackEntry = {
   slug,
   title,
   audio: `${slug}.mp3`,
-  lyrics: 'lyrics.txt'
+  lyrics: 'lyrics.txt',
+  commentary: 'commentary.txt'
 };
 
 manifest.tracks.push(trackEntry);
@@ -79,6 +80,11 @@ if (!fs.existsSync(lyricsPath)) {
   fs.writeFileSync(lyricsPath, '');
 }
 
+const commentaryPath = path.join(trackFolder, 'commentary.txt');
+if (!fs.existsSync(commentaryPath)) {
+  fs.writeFileSync(commentaryPath, '');
+}
+
 console.log(`added track entry to tracks/tracks.json with slug ${slug}`);
 console.log(`created track folder at ${path.relative(root, trackFolder)}`);
-console.log('remember to add the audio file and update lyrics.txt if needed');
+console.log('remember to add the audio file, update lyrics.txt, and write commentary.txt if needed');

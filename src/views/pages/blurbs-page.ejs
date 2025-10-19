@@ -12,10 +12,10 @@
 </head>
 <body class="crt" data-page="blurbs">
   <%- include('../partials/header', { srTitle: 'blurbs', current: 'blurbs' }) %>
-  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <main>
     <%- include('../sections/blurbs') %>
   </main>
+  <%- include('../partials/player', { tracks, playerMode: 'compact' }) %>
   <%- include('../partials/footer') %>
   <script src="assets/app.js" defer></script>
 </body>

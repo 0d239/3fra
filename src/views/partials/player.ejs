@@ -71,10 +71,10 @@
         <% } %>
       </figure>
       <div class="album-content">
+        <% const firstMeta = [firstTrack.year, firstTrack.description].filter(Boolean).join(' — '); %>
         <div class="album-now-playing">
           <div class="album-now-label">now playing</div>
           <div class="album-current-title"><%= firstTrack.title %></div>
-          <% const firstMeta = [firstTrack.year, firstTrack.description].filter(Boolean).join(' — '); %>
           <% if (firstMeta) { %>
             <div class="album-current-meta"><%= firstMeta %></div>
           <% } else { %>
@@ -93,7 +93,8 @@
                 data-slug="<%= track.slug %>"
                 data-title="<%= track.title %>"
                 data-audio="<%= track.audio %>"
-                data-transcript="<%= track.transcript %>"
+                data-lyrics="<%= track.lyrics || track.transcript %>"
+                data-commentary="<%= track.commentary || '' %>"
                 data-year="<%= track.year %>"
                 data-description="<%= track.description %>"
               >
@@ -106,8 +107,37 @@
         <div class="album-controls">
           <audio class="album-audio" controls preload="none" src="<%= firstTrack.audio %>"></audio>
           <details class="album-lyrics">
-            <summary>lyrics / transcript</summary>
-            <pre class="transcript-body" data-placeholder="open to fetch lyrics">open to fetch lyrics</pre>
+            <summary>lyrics / commentary</summary>
+            <div class="album-annotations" data-active="lyrics">
+              <div class="album-annotations-tabs" role="tablist" aria-label="lyrics and commentary">
+                <button type="button" class="album-annotations-tab is-active" data-view="lyrics" role="tab" aria-selected="true" aria-controls="album-annotations-lyrics">lyrics</button>
+                <button type="button" class="album-annotations-tab" data-view="commentary" role="tab" aria-selected="false" aria-controls="album-annotations-commentary">commentary</button>
+              </div>
+              <div class="album-annotations-panels">
+                <pre
+                  id="album-annotations-lyrics"
+                  class="album-annotations-body is-active"
+                  data-view="lyrics"
+                  data-placeholder="open to fetch lyrics"
+                  data-loading-text="loading lyrics…"
+                  data-error-text="(error loading lyrics)"
+                  data-empty-text="(no lyrics)"
+                  role="tabpanel"
+                  aria-label="track lyrics"
+                >open to fetch lyrics</pre>
+                <pre
+                  id="album-annotations-commentary"
+                  class="album-annotations-body"
+                  data-view="commentary"
+                  data-placeholder="select commentary tab to load"
+                  data-loading-text="loading commentary…"
+                  data-error-text="(error loading commentary)"
+                  data-empty-text="(no commentary yet)"
+                  role="tabpanel"
+                  aria-label="track commentary"
+                >select commentary tab to load</pre>
+              </div>
+            </div>
           </details>
         </div>
       </div>
