@@ -1,21 +1,99 @@
 <section id="tracks" class="section">
   <h2>// tracks</h2>
-  <% const trackList = (tracks && Array.isArray(tracks.items)) ? tracks.items : []; %>
-  <% if (!trackList.length) { %>
-    <p class="hint">No tracks yet — list them in <code>tracks/tracks.json</code> and drop your audio + lyric files alongside them.</p>
-  <% } else { %>
-    <% const albumTitle = (tracks && (tracks.title || tracks.albumTitle)) ? (tracks.title || tracks.albumTitle) : 'the console'; %>
-    <p class="hint">the <span class="hint-strong"><%= albumTitle %></span> console up top is live.</p>
+    <p class="hint">the <span class="hint-strong">0d239</span> console provides access to a subset of the songs at any given time. upon official album release, the entire zip file(.mp3, .wav, lyrics.txt, and commentary.txt for every track) will be available for download here on https://3fra.org.</p>
+    <p> the unabridged tracklist is as follows: </p>
     <ol class="tracklist-fallback">
-      <% trackList.forEach(function(track, index){ %>
         <li>
-          <span class="tracklist-index"><%= String(index + 1).padStart(2, '0') %>.</span>
-          <span class="tracklist-title"><%= track.title %></span>
-          <% if (track.year) { %>
-            <span class="tracklist-year"><%= track.year %></span>
-          <% } %>
+          <span class="tracklist-index">1</span>
+          <span class="tracklist-title">butter</span>
         </li>
-      <% }); %>
+        <li>
+          <span class="tracklist-index">2</span>
+          <span class="tracklist-title">muscle</span>
+        </li>
+        <li>
+          <span class="tracklist-index">3</span>
+          <span class="tracklist-title">ali</span>
+        </li>
+        <li>
+          <span class="tracklist-index">4</span>
+          <span class="tracklist-title">consider</span>
+        </li>
+        <li>
+          <span class="tracklist-index">5</span>
+          <span class="tracklist-title">hands</span>
+        </li>
+        <li>
+          <span class="tracklist-index">6</span>
+          <span class="tracklist-title">ceviche</span>
+        </li>
+        <li>
+          <span class="tracklist-index">7</span>
+          <span class="tracklist-title">pelon</span>
+        </li>
+        <li>
+          <span class="tracklist-index">8</span>
+          <span class="tracklist-title">goulart</span>
+        </li>
+        <li>
+          <span class="tracklist-index">9</span>
+          <span class="tracklist-title">chemicals</span>
+        </li>
+        <li>
+          <span class="tracklist-index">10</span>
+          <span class="tracklist-title">bender</span>
+        </li>
+        <li>
+          <span class="tracklist-index">11</span>
+          <span class="tracklist-title">jobu</span>
+        </li>
+        <li>
+          <span class="tracklist-index">12</span>
+          <span class="tracklist-title">heavy</span>
+        </li>
+        <li>
+          <span class="tracklist-index">13</span>
+          <span class="tracklist-title">taste</span>
+        </li>
+        <li>
+          <span class="tracklist-index">14</span>
+          <span class="tracklist-title">mbappe</span>
+        </li>
+        <li>
+          <span class="tracklist-index">15</span>
+          <span class="tracklist-title">pico</span>
+        </li>
+        <li>
+          <span class="tracklist-index">16</span>
+          <span class="tracklist-title">embers</span>
+        </li>
+        <li>
+          <span class="tracklist-index">17</span>
+          <span class="tracklist-title">goodfellow</span>
+        </li>
+        <li>
+          <span class="tracklist-index">18</span>
+          <span class="tracklist-title">bc</span>
+        </li>
+        <li>
+          <span class="tracklist-index">19</span>
+          <span class="tracklist-title">cora</span>
+        </li>
+        <li>
+          <span class="tracklist-index">20</span>
+          <span class="tracklist-title">fish</span>
+        </li>
+        <li>
+          <span class="tracklist-index">21</span>
+          <span class="tracklist-title">ross</span>
+        </li>
+        <li>
+          <span class="tracklist-index">22</span>
+          <span class="tracklist-title">elements</span>
+        </li>
+        <li>
+          <span class="tracklist-index">23</span>
+          <span class="tracklist-title">chrome</span>
+        </li>
     </ol>
-  <% } %>
 </section>
