@@ -1,6 +1,31 @@
 {
   "coverArt": "assets/0d239_black_v1.jpg",
   "coverAlt": "0d239 cover art",
+  "albumTracklist": [
+    "butter",
+    "muscle",
+    "ali",
+    "consider",
+    "hands",
+    "ceviche",
+    "pelon",
+    "goulart",
+    "chemicals",
+    "bender",
+    "jobu",
+    "heavy",
+    "taste",
+    "mbappe",
+    "pico",
+    "willow",
+    "goodfellow",
+    "bc",
+    "cora",
+    "fish",
+    "ross",
+    "elements",
+    "chrome"
+  ],
   "tracks": [
     {
       "slug": "butter",
@@ -24,16 +49,16 @@
       "commentary": "commentary.txt"
     },
     {
-      "slug": "elements",
-      "title": "elements",
-      "audio": "elements.mp3",
+      "slug": "willow",
+      "title": "willow",
+      "audio": "willow.mp3",
       "lyrics": "lyrics.txt",
       "commentary": "commentary.txt"
     },
     {
-      "slug": "willow",
-      "title": "willow",
-      "audio": "willow.mp3",
+      "slug": "elements",
+      "title": "elements",
+      "audio": "elements.mp3",
       "lyrics": "lyrics.txt",
       "commentary": "commentary.txt"
     }

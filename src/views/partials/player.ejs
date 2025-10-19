@@ -82,7 +82,10 @@
           <% } %>
         </div>
         <ol class="album-tracklist" role="listbox" aria-label="tracklist">
-          <% trackList.forEach(function(track, index){ %>
+          <% trackList.forEach(function(track, index){
+            const displayNumber = (typeof track.number === 'number' && Number.isFinite(track.number)) ? track.number : (index + 1);
+            const paddedNumber = String(displayNumber).padStart(2, '0');
+          %>
             <li class="album-track <%= index === 0 ? 'is-active' : '' %>">
               <button
                 type="button"
@@ -90,6 +93,7 @@
                 role="option"
                 aria-selected="<%= index === 0 ? 'true' : 'false' %>"
                 data-index="<%= index %>"
+                data-track-number="<%= displayNumber %>"
                 data-slug="<%= track.slug %>"
                 data-title="<%= track.title %>"
                 data-audio="<%= track.audio %>"
@@ -98,7 +102,7 @@
                 data-year="<%= track.year %>"
                 data-description="<%= track.description %>"
               >
-                <span class="album-track-num"><%= String(index + 1).padStart(2, '0') %>.</span>
+                <span class="album-track-num"><%= paddedNumber %>.</span>
                 <span class="album-track-name"><%= track.title %></span>
               </button>
             </li>

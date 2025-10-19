@@ -2,7 +2,16 @@
   <h2>// tracks</h2>
     <p class="hint">the <span class="hint-strong">0d239</span> console provides access to a subset of the songs at any given time. upon official album release, the entire zip file(.mp3, .wav, lyrics.txt, and commentary.txt for every track) will be available for download here on https://3fra.org.</p>
     <p> the unabridged tracklist is as follows: </p>
+    <% const albumTracklist = (tracks && Array.isArray(tracks.tracklist)) ? tracks.tracklist : []; %>
     <ol class="tracklist-fallback">
+      <% if (albumTracklist.length) { %>
+        <% albumTracklist.forEach(function(albumTrack){ %>
+          <li>
+            <span class="tracklist-index"><%= albumTrack.number %></span>
+            <span class="tracklist-title"><%= albumTrack.title %></span>
+          </li>
+        <% }); %>
+      <% } else { %>
         <li>
           <span class="tracklist-index">1</span>
           <span class="tracklist-title">butter</span>
@@ -95,5 +104,6 @@
           <span class="tracklist-index">23</span>
           <span class="tracklist-title">chrome</span>
         </li>
+      <% } %>
     </ol>
 </section>
