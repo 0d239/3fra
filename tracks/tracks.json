@@ -29,6 +29,13 @@
       "audio": "elements.mp3",
       "lyrics": "lyrics.txt",
       "commentary": "commentary.txt"
+    },
+    {
+      "slug": "willow",
+      "title": "willow",
+      "audio": "willow.mp3",
+      "lyrics": "lyrics.txt",
+      "commentary": "commentary.txt"
     }
   ]
 }
