@@ -9,8 +9,8 @@
 </head>
 <body class="crt" data-page="tracks">
   <%- include('../partials/header', { srTitle: '3fra — tracks', current: 'tracks' }) %>
+  <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
   <main>
-    <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
     <%- include('../sections/tracks') %>
   </main>
   <%- include('../partials/footer') %>
