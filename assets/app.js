@@ -908,7 +908,7 @@
   }
 
   function initPjax(){
-    const main = document.querySelector('main');
+    let main = document.querySelector('main');
     if (!main) return;
 
     let navigating = false;
@@ -993,7 +993,14 @@
         syncMeta(doc.head || document.head);
         syncBodyAttributes(doc.body || document.body);
 
-        main.innerHTML = newMain.innerHTML;
+        const currentMain = main;
+        const clonedMain = newMain.cloneNode(true);
+        if (currentMain.parentNode) {
+          currentMain.parentNode.replaceChild(clonedMain, currentMain);
+        } else {
+          document.body.appendChild(clonedMain);
+        }
+        main = clonedMain;
         document.title = doc.querySelector('title')?.textContent || document.title;
 
         applyGlitchAttributes(document);
