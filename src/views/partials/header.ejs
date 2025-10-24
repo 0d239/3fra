@@ -3,7 +3,11 @@
   const navCurrent = typeof current !== 'undefined' ? current : null;
 %>
 <header class="site-header">
-  <a class="brand ascii-brand" href="index.html" aria-label="Home">
+  <%
+    const brandIsCurrent = navCurrent === 'ascii';
+    const brandAria = brandIsCurrent ? ' aria-current="page"' : '';
+  %>
+  <a class="brand ascii-brand" href="./?view=ascii" data-nav-target="ascii" aria-label="Home"<%- brandAria %>>
     <div class="ascii-stack" aria-hidden="true">
       <pre class="ascii glitch ascii-frame ascii-frame--primary">
  $$$$$$\        $$\  $$$$$$\   $$$$$$\   $$$$$$\  

@@ -885,21 +885,48 @@
     return albumController;
   }
 
+  function normalizeViewId(value){
+    return typeof value === 'string' ? value.trim().toLowerCase() : '';
+  }
+
+  function getLayoutConfig(){
+    return window.__LAYOUT_CONFIG__ || {};
+  }
+
+  function getDefaultViewKey(){
+    const config = getLayoutConfig();
+    if (typeof window.__LAYOUT_DEFAULT__ === 'string') {
+      const preferred = normalizeViewId(window.__LAYOUT_DEFAULT__);
+      if (preferred && config[preferred]) {
+        return preferred;
+      }
+    }
+    const keys = Object.keys(config);
+    if (keys.length) {
+      return normalizeViewId(keys[0]);
+    }
+    return '';
+  }
+
   function updateAlbumPlayerModeForPage(pageId){
     const controller = initAlbumPlayer();
     if (!controller) return;
-    if (pageId === 'tracks') {
+    const layout = getLayoutConfig();
+    const key = normalizeViewId(pageId);
+    const entry = key && layout[key] ? layout[key] : null;
+    const desired = typeof entry?.playerMode === 'string' ? entry.playerMode.trim().toLowerCase() : null;
+    if (desired === PLAYER_MODES.EXPANDED) {
       controller.expand();
     } else {
       controller.compact();
     }
   }
 
-  function updateNavActive(pageId){
-    document.querySelectorAll('.nav-link').forEach((link) => {
-      const href = link.getAttribute('href') || '';
-      const key = href.replace(/\.html$/, '').replace(/\/$/, '');
-      if (key && key === pageId) {
+  function updateNavActive(viewId){
+    const active = normalizeViewId(viewId);
+    document.querySelectorAll('[data-nav-target]').forEach((link) => {
+      const target = normalizeViewId(link.dataset.navTarget);
+      if (target && target === active) {
         link.setAttribute('aria-current', 'page');
       } else {
         link.removeAttribute('aria-current');
@@ -907,179 +934,207 @@
     });
   }
 
-  function initPjax(){
-    let main = document.querySelector('main');
-    if (!main) return;
-
-    let navigating = false;
-
-    function ensureStyles(head){
-      const existing = new Set(
-        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'))
-          .map((link) => new URL(link.getAttribute('href'), window.location.href).href)
-      );
-
-      head.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-        const href = link.getAttribute('href');
-        if (!href) return;
-        const absolute = new URL(href, window.location.href).href;
-        if (existing.has(absolute)) return;
-        const clone = link.cloneNode(true);
-        document.head.appendChild(clone);
-        existing.add(absolute);
-      });
+  function parseViewFromUrl(url){
+    try {
+      const candidate = new URL(url, window.location.href);
+      const param = normalizeViewId(candidate.searchParams.get('view'));
+      const config = getLayoutConfig();
+      if (param && config[param]) {
+        return param;
+      }
+    } catch (err) {
+      /* ignore */
     }
+    return null;
+  }
 
-    function syncMeta(head){
-      const incomingDescription = head.querySelector('meta[name="description"]');
-      const currentDescription = document.head.querySelector('meta[name="description"]');
-      if (incomingDescription) {
-        const content = incomingDescription.getAttribute('content') || '';
-        if (currentDescription) {
-          currentDescription.setAttribute('content', content);
-        } else {
-          const clone = incomingDescription.cloneNode(true);
-          document.head.appendChild(clone);
-        }
-      }
-    }
+  function initLayoutRouter(){
+    const root = document.querySelector('[data-layout-root]');
+    const target = root?.querySelector('[data-layout-target]') || null;
+    if (!root || !target) return;
 
-    function syncBodyAttributes(fromBody){
-      if (!fromBody) return;
-      document.body.className = fromBody.className;
-      Array.from(document.body.attributes).forEach((attr) => {
-        if (attr.name.startsWith('data-')) {
-          document.body.removeAttribute(attr.name);
-        }
-      });
-      Array.from(fromBody.attributes).forEach((attr) => {
-        if (attr.name.startsWith('data-')) {
-          document.body.setAttribute(attr.name, attr.value);
-        }
-      });
-    }
-
-    async function load(url, { push = true, scrollToTop = true } = {}){
-      let target;
-      try {
-        target = new URL(url, window.location.href);
-      } catch (err) {
-        window.location.href = url;
-        return;
-      }
-
-      if (target.origin !== window.location.origin) {
-        window.location.href = target.href;
-        return;
-      }
-
-      if (navigating) return;
-      navigating = true;
-
-      try {
-        const res = await fetch(target.href, { headers: { 'X-Requested-With': 'Codex-PJAX' } });
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const html = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newMain = doc.querySelector('main');
-        if (!newMain) {
-          throw new Error('Missing <main> in response');
-        }
-
-        ensureStyles(doc.head || document.head);
-        syncMeta(doc.head || document.head);
-        syncBodyAttributes(doc.body || document.body);
-
-        const currentMain = main;
-        const clonedMain = newMain.cloneNode(true);
-        if (currentMain.parentNode) {
-          currentMain.parentNode.replaceChild(clonedMain, currentMain);
-        } else {
-          document.body.appendChild(clonedMain);
-        }
-        main = clonedMain;
-        document.title = doc.querySelector('title')?.textContent || document.title;
-
-        applyGlitchAttributes(document);
-        hydrateBlurbs(document);
-        year();
-
-        const pageId = document.body.dataset.page || '';
-        updateNavActive(pageId);
-        updateAlbumPlayerModeForPage(pageId);
-
-        if (scrollToTop) {
-          window.scrollTo(0, 0);
-        }
-
-        if (push) {
-          history.pushState({ url: target.href }, '', target.href);
-        }
-      } catch (err) {
-        console.error('[pjax]', err);
-        window.location.href = target.href;
-      } finally {
-        navigating = false;
-      }
-    }
-
-    function handleClick(event){
-      if (event.defaultPrevented) return;
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const anchor = event.target.closest('a');
-      if (!anchor) return;
-      if (anchor.hasAttribute('download')) return;
-      if (anchor.target && anchor.target.toLowerCase() !== '_self') return;
-
-      const href = anchor.getAttribute('href');
-      if (!href || href.startsWith('#')) return;
-      if (anchor.dataset.noPjax === 'true') return;
-
-      let target;
-      try {
-        target = new URL(href, window.location.href);
-      } catch (err) {
-        return;
-      }
-
-      if (target.origin !== window.location.origin) return;
-
-      event.preventDefault();
-
-      if (target.href === window.location.href) return;
-
-      const controller = initAlbumPlayer();
-      controller?.onNavigationStart?.();
-      const navPromise = load(target.href, { push: true, scrollToTop: true });
-      if (navPromise && typeof navPromise.finally === 'function') {
-        navPromise.finally(() => {
-          controller?.onNavigationEnd?.();
-        });
-      } else {
-        controller?.onNavigationEnd?.();
-      }
-    }
-
-    document.addEventListener('click', handleClick);
-
-    window.addEventListener('popstate', (event) => {
-      const url = event.state?.url || window.location.href;
-      const controller = initAlbumPlayer();
-      controller?.onNavigationStart?.();
-      const navPromise = load(url, { push: false, scrollToTop: false });
-      if (navPromise && typeof navPromise.finally === 'function') {
-        navPromise.finally(() => {
-          controller?.onNavigationEnd?.();
-        });
-      } else {
-        controller?.onNavigationEnd?.();
+    const templates = new Map();
+    root.querySelectorAll('template[data-section-template]').forEach((tpl) => {
+      const id = normalizeViewId(tpl.dataset.sectionTemplate);
+      if (id && !templates.has(id)) {
+        templates.set(id, tpl);
       }
     });
 
-    history.replaceState({ url: window.location.href }, '', window.location.href);
+    const sections = new Map();
+    const wrappers = new Map();
+
+    Array.from(root.querySelectorAll('[data-section]')).forEach((el) => {
+      const id = normalizeViewId(el.dataset.section);
+      if (!id || sections.has(id)) return;
+      sections.set(id, el);
+    });
+
+    function ensureBaseSection(id){
+      const key = normalizeViewId(id);
+      if (!key) return null;
+      if (sections.has(key)) {
+        return sections.get(key);
+      }
+
+      const template = templates.get(key);
+      if (!template) return null;
+
+      const fragment = template.content ? template.content.cloneNode(true) : null;
+      if (!fragment) return null;
+      const nodes = Array.from(fragment.childNodes).filter((node) => node.nodeType === Node.ELEMENT_NODE);
+      const element = nodes[0] || null;
+      if (!element) return null;
+
+      sections.set(key, element);
+      return element;
+    }
+
+    function getSectionNode(id, wrapperClass){
+      const key = normalizeViewId(id);
+      if (!key) return null;
+      const base = ensureBaseSection(key);
+      if (!base) return null;
+
+      const parent = base.parentElement;
+      const wrapperId = parent?.dataset?.wrapperFor ? normalizeViewId(parent.dataset.wrapperFor) : null;
+
+      if (!wrapperClass) {
+        if (wrapperId === key) {
+          parent.removeChild(base);
+        }
+        return base;
+      }
+
+      const wrapperKey = `${key}::${wrapperClass}`;
+      let wrapper = wrappers.get(wrapperKey);
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = wrapperClass;
+        wrapper.dataset.wrapperFor = key;
+        wrappers.set(wrapperKey, wrapper);
+      }
+
+      if (base.parentElement !== wrapper) {
+        if (base.parentElement) {
+          base.parentElement.removeChild(base);
+        }
+        wrapper.appendChild(base);
+      }
+
+      return wrapper;
+    }
+
+    function clearTarget(){
+      while (target.firstChild) {
+        target.removeChild(target.firstChild);
+      }
+    }
+
+    function applyMeta(config){
+      if (!config) return;
+      if (typeof config.title === 'string' && config.title.trim()) {
+        document.title = config.title;
+      }
+      if (typeof config.description === 'string') {
+        const meta = document.querySelector('meta[name="description"]');
+        if (meta) {
+          meta.setAttribute('content', config.description);
+        }
+      }
+    }
+
+    function updateHistory(viewId, methodName){
+      if (!history || typeof history[methodName] !== 'function') return;
+      let url;
+      try {
+        url = new URL(window.location.href);
+      } catch (err) {
+        return;
+      }
+      const defaultKey = getDefaultViewKey();
+      if (normalizeViewId(viewId) === defaultKey) {
+        url.searchParams.delete('view');
+      } else if (viewId) {
+        url.searchParams.set('view', viewId);
+      } else {
+        url.searchParams.delete('view');
+      }
+      const state = Object.assign({}, history.state || {}, { view: viewId });
+      history[methodName](state, '', url.toString());
+    }
+
+    const layout = getLayoutConfig();
+    const defaultKey = getDefaultViewKey();
+    let activeView = normalizeViewId(target.dataset.activeView || document.body.dataset.view || defaultKey);
+
+    function setView(viewId, { historyMode = 'push' } = {}){
+      const requestedKey = normalizeViewId(viewId);
+      const resolvedKey = layout[requestedKey] ? requestedKey : defaultKey;
+      const config = layout[resolvedKey];
+      if (!config) return;
+
+      const configId = normalizeViewId(config.id || resolvedKey);
+      const isSame = activeView === configId;
+
+      if (!isSame) {
+        const controller = initAlbumPlayer();
+        controller?.onNavigationStart?.();
+        clearTarget();
+        config.sections.forEach((section) => {
+          const entry = section || {};
+          const node = getSectionNode(entry.id, entry.wrapperClass);
+          if (node) {
+            target.appendChild(node);
+          }
+        });
+        activeView = configId;
+        target.dataset.activeView = config.id || resolvedKey;
+        document.body.dataset.view = config.id || resolvedKey;
+        applyGlitchAttributes(target);
+        hydrateBlurbs(target);
+        controller?.onNavigationEnd?.();
+      } else {
+        target.dataset.activeView = config.id || resolvedKey;
+        document.body.dataset.view = config.id || resolvedKey;
+      }
+
+      updateNavActive(config.id || resolvedKey);
+      updateAlbumPlayerModeForPage(config.id || resolvedKey);
+      applyMeta(config);
+
+      if (historyMode === 'push') {
+        updateHistory(config.id || resolvedKey, 'pushState');
+      } else if (historyMode === 'replace') {
+        updateHistory(config.id || resolvedKey, 'replaceState');
+      }
+    }
+
+    const initialFromUrl = parseViewFromUrl(window.location.href);
+    if (initialFromUrl) {
+      activeView = ''; // force rebuild
+      setView(initialFromUrl, { historyMode: 'replace' });
+    } else if (activeView) {
+      setView(activeView, { historyMode: 'replace' });
+    }
+
+    document.querySelectorAll('[data-nav-target]').forEach((link) => {
+      const navTarget = normalizeViewId(link.dataset.navTarget);
+      if (!navTarget) return;
+      link.addEventListener('click', (event) => {
+        if (event.defaultPrevented) return;
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        setView(navTarget, { historyMode: 'push' });
+      });
+    });
+
+    window.addEventListener('popstate', () => {
+      const fromUrl = parseViewFromUrl(window.location.href);
+      const fromState = normalizeViewId(history.state?.view);
+      const next = fromUrl || fromState || defaultKey;
+      setView(next, { historyMode: 'none' });
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -1088,10 +1143,11 @@
     keyboard();
     year();
 
-    updateNavActive(document.body.dataset.page || '');
-    updateAlbumPlayerModeForPage(document.body.dataset.page || '');
+    const initialView = document.body.dataset.view || document.body.dataset.page || '';
+    updateNavActive(initialView);
+    updateAlbumPlayerModeForPage(initialView);
 
     initAlbumPlayer();
-    initPjax();
+    initLayoutRouter();
   });
 })();

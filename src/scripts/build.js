@@ -13,11 +13,7 @@ const viewsDir = path.join(projectRoot, 'src', 'views');
 
 const pages = [
   { template: path.join('pages', 'index.ejs'), output: 'index.html' },
-  { template: path.join('pages', 'blurbs-page.ejs'), output: 'blurbs.html' },
-  { template: path.join('pages', 'links-page.ejs'), output: 'links.html' },
-  { template: path.join('pages', 'tracks-page.ejs'), output: 'tracks.html' },
-  { template: path.join('pages', 'runes-page.ejs'), output: 'runes.html' },
-  { template: path.join('pages', 'info-page.ejs'), output: 'info.html' }
+  { template: path.join('pages', 'blurbs-page.ejs'), output: 'blurbs.html' }
 ];
 
 const staticEntries = [

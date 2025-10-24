@@ -10,16 +10,31 @@
   <link rel="stylesheet" href="blurbs/second.blurb.css">
   <link rel="stylesheet" href="blurbs/fear.blurb.css">
 </head>
-<body class="crt" data-page="home">
-  <%- include('../partials/header', { srTitle: '3fra', current: null }) %>
-  <main>
-    <%- include('../sections/info') %>
-    <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
-    <div class="layout-constrained">
-      <%- include('../sections/runes') %>
+<body class="crt" data-view="ascii">
+  <%- include('../partials/header', { srTitle: '3fra', current: 'ascii' }) %>
+  <main data-layout-root>
+    <div data-layout-target data-active-view="ascii">
+      <%- include('../sections/info') %>
+      <%- include('../partials/player', { tracks, playerMode: 'expanded' }) %>
+      <div class="layout-constrained" data-wrapper-for="runes">
+        <%- include('../sections/runes') %>
+      </div>
     </div>
+    <template data-section-template="info">
+      <%- include('../sections/info') %>
+    </template>
+    <template data-section-template="runes">
+      <%- include('../sections/runes') %>
+    </template>
+    <template data-section-template="tracks">
+      <%- include('../sections/tracks') %>
+    </template>
+    <template data-section-template="links">
+      <%- include('../sections/links') %>
+    </template>
   </main>
   <%- include('../partials/footer') %>
+  <script src="assets/layout-config.js" defer></script>
   <script src="assets/app.js" defer></script>
 </body>
 </html>

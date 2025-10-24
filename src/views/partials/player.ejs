@@ -5,7 +5,7 @@
   <% const albumSubtitle = (tracks && (tracks.subtitle || tracks.albumSubtitle)) ? (tracks.subtitle || tracks.albumSubtitle) : ''; %>
   <% const albumNote = (tracks && tracks.note) ? tracks.note : ''; %>
   <% const startMode = (typeof playerMode === 'string' && playerMode.toLowerCase() === 'expanded') ? 'expanded' : 'compact'; %>
-  <aside class="album-player ascii tilt <%= startMode === 'compact' ? 'is-compact' : '' %>" data-album-title="<%= albumTitle %>" data-player-mode="<%= startMode %>">
+  <aside class="album-player ascii tilt <%= startMode === 'compact' ? 'is-compact' : '' %>" data-section="player" data-album-title="<%= albumTitle %>" data-player-mode="<%= startMode %>">
     <div class="album-body">
       <figure class="album-cover">
         <div class="album-cover-frame">

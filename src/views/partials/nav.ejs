@@ -1,12 +1,22 @@
 <%
-  const currentPage = typeof current !== 'undefined' ? current : null;
-  const aria = key => (currentPage === key ? ' aria-current="page"' : '');
+  const currentView = typeof current !== 'undefined' ? current : null;
+  const navItems = [
+    { id: 'info', label: 'info' },
+    { id: 'runes', label: 'runes' },
+    { id: 'tracks', label: 'tracks' },
+    { id: 'links', label: 'links' }
+  ];
+  const aria = (id) => (currentView === id ? ' aria-current="page"' : '');
+  const navHref = (id) => `?view=${id}`;
 %>
 <nav class="nav">
   <div class="nav-links">
-    <a class="nav-button nav-link" href="info.html"<%- aria('info') %>>info</a>
-    <a class="nav-button nav-link" href="runes.html"<%- aria('runes') %>>runes</a>
-    <a class="nav-button nav-link" href="tracks.html"<%- aria('tracks') %>>tracks</a>
-    <a class="nav-button nav-link" href="links.html"<%- aria('links') %>>links</a>
+    <% navItems.forEach((item) => { %>
+      <a
+        class="nav-button nav-link"
+        href="<%= navHref(item.id) %>"
+        data-nav-target="<%= item.id %>"<%- aria(item.id) %>
+      ><%= item.label %></a>
+    <% }); %>
   </div>
 </nav>
